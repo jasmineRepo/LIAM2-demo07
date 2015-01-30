@@ -119,7 +119,7 @@ public class LinearRegression implements ILinearRegression {
 //	}
 
 	/**
-	 *
+	 * change logic
 	 * Warning - only use when LinearRegression object contains a MultiKeyCoefficientMap with only one key.  This method only looks at the first key of the MultiKeyCoefficientMap field of LinearRegression, so any other keys that are used to distinguish a unique multiKey (i.e. if the first key occurs more than once) will be ignored! If the first key of the multiKey appears more than once, the method would return an incorrect value, so will throw an exception.   
 	 * @param values
 	 * @return
