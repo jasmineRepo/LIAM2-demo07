@@ -98,7 +98,7 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 //		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Update), 0, 1);		//Used in observer
 		
 		//Schedule periodic dumps of data to database during the simulation
-	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), databaseDumpStartsAfterTimestep, numTimestepsBetweenDatabaseDumps);
+	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, numTimestepsBetweenDatabaseDumps);
 	    
 //	    //Dump data to database at end of simulation
 //	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getEndYear() - model.getStartYear());

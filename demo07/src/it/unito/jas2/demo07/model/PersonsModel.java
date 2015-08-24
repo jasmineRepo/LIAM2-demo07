@@ -191,10 +191,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		}
 	
 		modelSchedule.addEvent(this, Processes.UpdateYear);
-		getEngine().getEventList().schedule(modelSchedule, 0, 1);
+		getEngine().getEventList().schedule(modelSchedule, startYear, 1);
 		
 		//Schedule model to stop
-		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear - startYear);
+		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
 		
 		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
 		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
@@ -290,7 +290,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			MultiKey mk = (MultiKey) iterator.getKey();
 			int ageFrom = (Integer) mk.getKey(0);
 			int ageTo = (Integer) mk.getKey(1);
-			double divorceTarget = ((Number) pDivorceMap.getValue(ageFrom, ageTo, getStartYear() + SimulationEngine.getInstance().getTime())).doubleValue();
+			double divorceTarget = ((Number) pDivorceMap.getValue(ageFrom, ageTo, SimulationEngine.getInstance().getTime())).doubleValue();
 
 			//Align
 			new SBDAlignment<Person>().align(
@@ -325,7 +325,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 //			Gender gender = Gender.values()[(Integer) mk.getKey(2)];		//When 1 / 0 are entries for Male / Female respectively in p_inwork.xls
 			Gender gender = Gender.valueOf((String) mk.getKey(2));			//When Male / Female are entries in p_inwork.xls
 
-			double inWorkTarget = ((Number) map.getValue(ageFrom, ageTo, gender.toString(), getStartYear() + SimulationEngine.getInstance().getTime())).doubleValue();
+			double inWorkTarget = ((Number) map.getValue(ageFrom, ageTo, gender.toString(), SimulationEngine.getInstance().getTime())).doubleValue();
 
 			//Align
 			new SBDAlignment<Person>().align(

@@ -292,7 +292,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 		
 		MultiKeyCoefficientMap map = ( gender.equals(Gender.Male) ? Parameters.getpDeathM() : Parameters.getpDeathF() ) ;
 		
-		double deathProbability = ((Number) map.getValue(this.age, model.getStartYear() + SimulationEngine.getInstance().getTime())).doubleValue();
+		double deathProbability = ((Number) map.getValue(this.age, SimulationEngine.getInstance().getTime())).doubleValue();
 		
 		if ( RegressionUtils.event(deathProbability) ) {
 			// update partner's status
@@ -333,7 +333,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 		if ((this.gender.equals(Gender.Female)) && (this.age >= 15) && (this.age <= 50)) {
 			double birthProbability;
 			try{
-				birthProbability = ((Number) Parameters.getpBirth().getValue(this.age, model.getStartYear() + SimulationEngine.getInstance().getTime())).doubleValue();
+				birthProbability = ((Number) Parameters.getpBirth().getValue(this.age, SimulationEngine.getInstance().getTime())).doubleValue();
 				if ( RegressionUtils.event(birthProbability) ) {
 					
 					Person newborn = new Person( (Person.personIdCounter)++ );
