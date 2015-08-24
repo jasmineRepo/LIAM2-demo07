@@ -6,6 +6,7 @@ import it.unito.jas2.demo07.data.filters.ActiveMultiFilter;
 import it.unito.jas2.demo07.data.filters.FemaleToCoupleFilter;
 import it.unito.jas2.demo07.data.filters.FemaleToDivorce;
 import it.unito.jas2.demo07.data.filters.MaleToCoupleFilter;
+import it.unito.jas2.demo07.experiment.PersonsCollector;
 //import it.unito.jas2.demo07.model.enums.CivilState;
 import it.unito.jas2.demo07.model.enums.Education;
 import it.unito.jas2.demo07.model.enums.Gender;
@@ -49,12 +50,18 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@ModelParameter(description="Retirement age for women")
 	private Integer wemra = 61;
 	
+	@ModelParameter(description="Toggle to turn off verbose information on time to complete each method")
+	private Boolean printElapsedTime = false; 
+
 	private List<Person> persons;
 	
 	private List<Household> households;
 	
 	private long elapsedTime;
 	private int methodId = 0;
+	private int year;
+	
+	private long runningTime;// = System.currentTimeMillis();		//For measuring real-time to between for model to build and to complete the simulation.
 
 	// ---------------------------------------------------------------------
 	// EventListener
@@ -65,7 +72,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		DivorceAlignment,
 		InWorkAlignment,
 		Stop,
-		Timer;
+		Timer, 
+		UpdateYear;
 	}
 	
 	@Override
@@ -81,11 +89,18 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			marriageMatching();
 			break;
 		case Stop:
-			log.info("Model completed");
-			getEngine().pause();
+			((PersonsCollector)SimulationEngine.getInstance().getManager(PersonsCollector.class.getCanonicalName())).dumpInfo();
+			long timeToComplete = System.currentTimeMillis() - runningTime;
+			log.info("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
+			System.out.println("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
+			getEngine().pause();		
 			break;
 		case Timer:
 			printElapsedTime();		//Comment or Uncomment depending on whether you want more System.out calls (which slow down the simulation, although useful to record the time to execute the methods for benchmarking. 
+			break;
+		case UpdateYear:
+			year++;
+			break;
 		}
 	}
 	
@@ -96,6 +111,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@SuppressWarnings("unchecked")
 	@Override
 	public void buildObjects() {
+		runningTime = System.currentTimeMillis();
+		
 		SimulationEngine.getRnd().setSeed(0);
 		Parameters.loadParameters();
 		System.out.println("Parameters loaded.");
@@ -114,47 +131,75 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@Override
 	public void buildSchedule() {
 		
+		year = startYear;
+		
 		EventGroup modelSchedule = new EventGroup();		
 		// 1: Aging
 		modelSchedule.addCollectionEvent(persons, Person.Processes.Ageing);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 2: Death
 		modelSchedule.addCollectionEvent(persons, Person.Processes.Death, false);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 3: Birth 
 		modelSchedule.addCollectionEvent(persons, Person.Processes.Birth, false);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 4: Marriage
 		modelSchedule.addCollectionEvent(persons, Person.Processes.ToCouple);
 		modelSchedule.addEvent(this,  Processes.MarriageMatching);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 5: Exit from parental home
 		modelSchedule.addCollectionEvent(persons, Person.Processes.GetALife);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 6: Divorce 
 		modelSchedule.addEvent(this,  Processes.DivorceAlignment);
 		modelSchedule.addCollectionEvent(persons, Person.Processes.Divorce);
-		modelSchedule.addEvent(this, Processes.Timer);	
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}	
 		
 		// 7: Household composition (for reporting only: household composition is updated whenever needed throughout the simulation
 		modelSchedule.addCollectionEvent(households, Household.Processes.HouseholdComposition);
-		modelSchedule.addEvent(this, Processes.Timer);	
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}	
 		
 		// 8: Education
 		modelSchedule.addCollectionEvent(persons, Person.Processes.InEducation);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 		
 		// 9: Work 
 		modelSchedule.addEvent(this, Processes.InWorkAlignment);
-		modelSchedule.addEvent(this, Processes.Timer);
+		if(printElapsedTime) {
+			modelSchedule.addEvent(this, Processes.Timer);
+		}
 	
-		getEngine().getEventList().schedule(modelSchedule, 0, 1);						
-		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear - startYear); 
+		modelSchedule.addEvent(this, Processes.UpdateYear);
+		getEngine().getEventList().schedule(modelSchedule, 0, 1);
+		
+		//Schedule model to stop
+		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear - startYear);
+		
+		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
+		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
+		System.out.println("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
+
 	}
 	
 	// ---------------------------------------------------------------------
@@ -351,7 +396,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		// TODO: print the method name
 		// TODO: integrate in schedule
 		methodId++;
-		int year = startYear + (int)((methodId-1) / 9);
+//		int year = startYear + (int)((methodId-1) / 9);
 		long timeDiff = System.currentTimeMillis() - elapsedTime;
 		System.out.println("Year " + year + " Method "+ (((methodId-1) % 9)+1) +" completed in " + timeDiff + "ms.");
 		elapsedTime = System.currentTimeMillis();
@@ -409,6 +454,18 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		boolean isRemoveSuccessful = households.remove(household);
 		return isRemoveSuccessful;
 	}
+
+	public Boolean getPrintElapsedTime() {
+		return printElapsedTime;
+	}
+
+	public void setPrintElapsedTime(Boolean printElapsedTime) {
+		this.printElapsedTime = printElapsedTime;
+	}
+
+//	public int getYear() {
+//		return year;
+//	}
 	
 
 	
