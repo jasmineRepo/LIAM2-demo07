@@ -168,12 +168,6 @@ public class LinearRegression implements ILinearRegression {
 				if (value.getClass().equals(Double.class)) {
 					final Double r = (Double) value;
 					resultMap.put(key, ((Double)(r != null ? r : 0.0)).toString());				
-				} else if (value.getClass().equals(Float.class)) {
-					final Float r = (Float) value;
-					resultMap.put(key, ((Float)(r != null ? r : 0.0f)).toString());				
-				} else if (value.getClass().equals(Long.class)) {
-					final Long r = (Long) value;
-					resultMap.put(key, ((Long)(r != null ? r : 0L)).toString());				
 				} else if (value.getClass().equals(Integer.class)) {
 					Integer r = (Integer) value;
 					resultMap.put(key, ((Integer)(r != null ? r : 0)).toString());				
@@ -181,13 +175,19 @@ public class LinearRegression implements ILinearRegression {
 					Boolean r = (Boolean) value;
 					boolean b = (Boolean)(r != null ? r : false);
 					resultMap.put(key, (b ? "true" : "false"));				
-				} else if (value.getClass().isEnum()) {
-					final String e = value.toString();
-					resultMap.put(key, e);								
 				} else if (value.getClass().equals(String.class)) {
 					final String s = (String) value;
 					resultMap.put(key, s);	
-				}
+				} else if (value.getClass().equals(Long.class)) {
+					final Long r = (Long) value;
+					resultMap.put(key, ((Long)(r != null ? r : 0L)).toString());				
+				} else if (value.getClass().isEnum()) {
+					final String e = value.toString();
+					resultMap.put(key, e);								
+				} else if (value.getClass().equals(Float.class)) {
+					final Float r = (Float) value;
+					resultMap.put(key, ((Float)(r != null ? r : 0.0f)).toString());				
+				} 
 			} 
 		}
 		

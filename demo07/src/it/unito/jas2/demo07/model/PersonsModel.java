@@ -288,8 +288,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		for (MapIterator iterator = pDivorceMap.mapIterator(); iterator.hasNext();) {
 			iterator.next();
 			MultiKey mk = (MultiKey) iterator.getKey();
-			int ageFrom = (Integer) mk.getKey(0);
-			int ageTo = (Integer) mk.getKey(1);
+			Integer ageFrom = (Integer) mk.getKey(0);
+			Integer ageTo = (Integer) mk.getKey(1);
 			double divorceTarget = ((Number) pDivorceMap.getValue(ageFrom, ageTo, SimulationEngine.getInstance().getTime())).doubleValue();
 
 			//Align
@@ -320,8 +320,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		for (MapIterator iterator = map.mapIterator(); iterator.hasNext();) {
 			iterator.next();
 			MultiKey mk = (MultiKey) iterator.getKey();
-			int ageFrom = (Integer) mk.getKey(0);
-			int ageTo = (Integer) mk.getKey(1);
+			Integer ageFrom = (Integer) mk.getKey(0);
+			Integer ageTo = (Integer) mk.getKey(1);
 //			Gender gender = Gender.values()[(Integer) mk.getKey(2)];		//When 1 / 0 are entries for Male / Female respectively in p_inwork.xls
 			Gender gender = Gender.valueOf((String) mk.getKey(2));			//When Male / Female are entries in p_inwork.xls
 
