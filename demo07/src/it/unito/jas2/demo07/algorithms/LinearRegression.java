@@ -157,6 +157,7 @@ public class LinearRegression implements ILinearRegression {
 	//////////////////////////////////
 	
 	private static Map<String, String> extractMapNumbersBooleansEnumsAndStrings(Object object) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		
 		Map<String, String> resultMap = new HashMap<String, String>();
 		
 		Map<?, ?> describedData = PropertyUtils.describe(object);
@@ -278,7 +279,7 @@ public class LinearRegression implements ILinearRegression {
 			}
 			return sum;
 			
-			
+			//Previous way of calculating it:
 //			final Map<String, Double> valueMap = new HashMap<String, Double>();  			//Will contains the values of the regressor variables from the object implementing IDoubleSource interface
 //			final Map<String, Double> regCoeffMap = new HashMap<String, Double>();			
 //			
