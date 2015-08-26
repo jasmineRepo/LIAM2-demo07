@@ -12,7 +12,10 @@ import org.apache.log4j.Logger;
 public class PersonsCollector extends AbstractSimulationCollectorManager implements EventListener {
 
 	private static Logger log = Logger.getLogger(PersonsCollector.class);
-
+	
+	@ModelParameter(description="Toggle to persist data to database")
+	private Boolean persistData = false;
+	
 	@ModelParameter(description="number of timesteps to wait before persisting database")
 	private Integer databaseDumpStartsAfterTimestep = 10;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 
@@ -88,20 +91,21 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	
 	@Override
 	public void buildSchedule() {	
-		
-//		EventGroup collectorSchedule = new EventGroup();
-
-//	    collectorSchedule.addEvent(this, Processes.Update);
-//	    collectorSchedule.addEvent(this, Processes.DumpInfo);
-
-//	    getEngine().getEventList().schedule(collectorSchedule, 0, 1);	
-//		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Update), 0, 1);		//Used in observer
-		
-		//Schedule periodic dumps of data to database during the simulation
-	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, numTimestepsBetweenDatabaseDumps);
-	    
-//	    //Dump data to database at end of simulation
-//	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getEndYear() - model.getStartYear());
+		if(persistData) {
+	//		EventGroup collectorSchedule = new EventGroup();
+	
+	//	    collectorSchedule.addEvent(this, Processes.Update);
+	//	    collectorSchedule.addEvent(this, Processes.DumpInfo);
+	
+	//	    getEngine().getEventList().schedule(collectorSchedule, 0, 1);	
+	//		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Update), 0, 1);		//Used in observer
+			
+			//Schedule periodic dumps of data to database during the simulation
+		    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, numTimestepsBetweenDatabaseDumps);
+		    
+	//	    //Dump data to database at end of simulation
+	//	    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getEndYear() - model.getStartYear());
+		}
 	}
 	
 	//This is so that Model class can call at end of simulation just before stopping to dump the database
@@ -130,6 +134,14 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	public void setNumTimestepsBetweenDatabaseDumps(
 			Integer numTimestepsBetweenDatabaseDumps) {
 		this.numTimestepsBetweenDatabaseDumps = numTimestepsBetweenDatabaseDumps;
+	}
+
+	public Boolean getPersistData() {
+		return persistData;
+	}
+
+	public void setPersistData(Boolean persistData) {
+		this.persistData = persistData;
 	}
 	
 	

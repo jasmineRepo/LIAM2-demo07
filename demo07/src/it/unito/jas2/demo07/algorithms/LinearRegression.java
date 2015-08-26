@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 public class LinearRegression implements ILinearRegression {
@@ -208,55 +209,123 @@ public class LinearRegression implements ILinearRegression {
 	 * @author Ross Richardson  
 	 */
 	public static <T extends Enum<T>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumType) 
-	{		
-		try {
-			final Map<String, Double> valueMap = new HashMap<String, Double>();  			//Will contains the values of the regressor variables from the object implementing IDoubleSource interface
-			final Map<String, Double> regCoeffMap = new HashMap<String, Double>();			
+	{				
+		try {			
+			Map<?, ?> describedData = PropertyUtils.describe(iDblSrc);
+			Map<String, String> propertyMap = new HashMap<String, String>();
 			
-			final Map<String, String> propertiesMap = extractMapNumbersBooleansEnumsAndStrings(iDblSrc);
-			Vector<String> attributesVector = new Vector<String>();		
-			
-			int iMax = coeffMultiMap.getKeys().length;
-			for (int i = 1; i < iMax; i++)	//Ignore first entry of multiKey, as this corresponds to "regressors" column that does not have an associated field in iDblSrc
-			{	
-				String str = coeffMultiMap.getKeys()[i];
-				if(propertiesMap.containsKey(str)) {
-					attributesVector.add(propertiesMap.get(str));		//Gets the name of members of the iDblSrc that match the entries in the MultiKey of coeffMultiMap.  No need to worry about duplicate entries as propertiesMap cannot have duplicates
-				}
-				else throw new NoSuchFieldException("Error in Regression: Could not find LinearRegression.map key named \'" + str + "\' among the fields of the iDoubleSource argument to computeScore(MultiKeyCoefficientMap, IDoubleSource, Class<T>).  Check the character cases of \'" + str + "\' match, if the field exists in object implementing iDoubleSource, to ensure they match.");
-						//TODO: Get simulation to stop when this exception is thrown.
-			}	
-						
-			HashSet<String> regressors = new HashSet<String>();
-			for(Object multiKey : coeffMultiMap.keySet())
-			{
-				regressors.add((String) ((MultiKey) multiKey).getKey(0)); 
-			}
-			
-			for(String regressor : regressors) {
-				attributesVector.insertElementAt(regressor, 0);								//Inserts the regressor variable at the front of the vector, to preserve the correct ordering of the multiKey
-				MultiKey mk = new MultiKey(attributesVector.toArray());				//Creates an Object[1], however coeffMultiMap expects an Object[3] as there are 3 keys (the actual entries as opposed to the MultiKey itself).  So try passing attributesVector.toArray() directly into the getValue function...			
-				if(coeffMultiMap.containsKey(mk))		//Need to check that the multiKey exists in the coeffMultiMap, as it is possible to construct an attributesVector with entries that do not exist in the coeffMultiMap if there is a case where there is no entry for a specific Key(0) for the other attributes in Key(1) or Key(2) etc.  This is because Key(0) is currently taken from scanning through all the entries of the keySet of coeffMultiMap, and it is possible to combine this with Key(1), Key(2) etc. that are taken from the iDblSrc properties.  But no MultiKey with these values may exist in the coeffMultiMap!  
-				{
-					double coeff = (Double)coeffMultiMap.getValue(attributesVector.toArray());
-					//Gets the relevant coefficient of the MultiKeyCoefficient map, so even though ther first key in the MultiKey may not be unique (i.e. MultiKey.get(0)), the appropriate value of the MultiKeyCoefficientMap is distinguished by the rest of the keys, i.e. MultiKey.get(1), MultiKey.get(2), etc. (if they exist)
-					regCoeffMap.put(regressor, coeff);
+			for(int i = 1; i < coeffMultiMap.getKeys().length; i++) {			//First entry (i = 0) corresponds to name of regressor, so no need to include here
 
-					double value = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable called "key" from object implementing IDoubleSource interface
-					valueMap.put(regressor, value);
+				String property = coeffMultiMap.getKeys()[i];
+				if(describedData.containsKey(property)) {
+					Object value = describedData.get(property);
+					if(value != null)
+					{
+						if (value.getClass().equals(Double.class)) {
+							final Double r = (Double) value;
+							propertyMap.put(property, ((Double)(r != null ? r : 0.0)).toString());				
+						} else if (value.getClass().equals(Integer.class)) {
+							Integer r = (Integer) value;
+							propertyMap.put(property, ((Integer)(r != null ? r : 0)).toString());				
+						} else if (value.getClass().equals(Boolean.class)) {
+							Boolean r = (Boolean) value;
+							boolean b = (Boolean)(r != null ? r : false);
+							propertyMap.put(property, (b ? "true" : "false"));				
+						} else if (value.getClass().equals(String.class)) {
+							final String s = (String) value;
+							propertyMap.put(property, s);	
+						} else if (value.getClass().equals(Long.class)) {
+							final Long r = (Long) value;
+							propertyMap.put(property, ((Long)(r != null ? r : 0L)).toString());				
+						} else if (value.getClass().isEnum()) {
+							final String e = value.toString();
+							propertyMap.put(property, e);								
+						} else if (value.getClass().equals(Float.class)) {
+							final Float r = (Float) value;
+							propertyMap.put(property, ((Float)(r != null ? r : 0.0f)).toString());				
+						} 
+					} 
 				}
-				attributesVector.remove(0);				
-			}
-						
-			double sum = 0.0;
-			for (String key : regCoeffMap.keySet()) {
-				if (key.contains("@"))
-					sum += (Double) (regCoeffMap.get(key) == null ? 0.0 : regCoeffMap.get(key));
-				else
-					sum += (Double) (regCoeffMap.get(key) == null ? 0.0 : regCoeffMap.get(key)) * (Double) (valueMap.get(key) == null ? 0.0 : valueMap.get(key));
+				else throw new NoSuchFieldException("Error in Regression: Could not find LinearRegression.map key named \'" + property + "\' among the fields of the iDoubleSource argument to computeScore(MultiKeyCoefficientMap, IDoubleSource, Class<T>).  Check the character cases of \'" + property + "\' match, if the field exists in object implementing iDoubleSource, to ensure they match.");
+				
+			}			
+//			for(String key : propertyMap.keySet()) {
+//				System.out.println(key + ", " + propertyMap.get(key));
+//			}
+				
+			double sum = 0.;
+			for (MapIterator iterator = coeffMultiMap.mapIterator(); iterator.hasNext();) {
+				iterator.next();
+				
+				MultiKey coeffMK = (MultiKey) iterator.getKey();
+				boolean coeffMKapplicableForIDblSrc = true;
+				int i = 1;	
+				while(i < coeffMultiMap.getKeys().length) {
+					if(!coeffMK.getKey(i).toString().equals(propertyMap.get(coeffMultiMap.getKeys()[i]))) {
+						coeffMKapplicableForIDblSrc = false;
+						break;
+					}
+					i++;
+				}
+				if(coeffMKapplicableForIDblSrc == true) {
+					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
+					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
+					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+//					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
+					sum += covariate * regCoefficient;
+				}
+					
 			}
 			return sum;
-//			return multiplyCoeffsWithValues(regCoeffMap, valueMap);			//TODO: Test that we can delegate to multiplyCoeffsWithValues()
+			
+			
+//			final Map<String, Double> valueMap = new HashMap<String, Double>();  			//Will contains the values of the regressor variables from the object implementing IDoubleSource interface
+//			final Map<String, Double> regCoeffMap = new HashMap<String, Double>();			
+//			
+//			final Map<String, String> propertiesMap = extractMapNumbersBooleansEnumsAndStrings(iDblSrc);
+//			ArrayList<String> attributesList = new ArrayList<String>();		
+//			
+//			int iMax = coeffMultiMap.getKeys().length;
+//			for (int i = 1; i < iMax; i++)	//Ignore first entry of multiKey, as this corresponds to "regressors" column that does not have an associated field in iDblSrc
+//			{	
+//				String str = coeffMultiMap.getKeys()[i];
+//				if(propertiesMap.containsKey(str)) {
+//					attributesList.add(propertiesMap.get(str));		//Gets the name of members of the iDblSrc that match the entries in the MultiKey of coeffMultiMap.  No need to worry about duplicate entries as propertiesMap cannot have duplicates
+//				}
+//				else throw new NoSuchFieldException("Error in Regression: Could not find LinearRegression.map key named \'" + str + "\' among the fields of the iDoubleSource argument to computeScore(MultiKeyCoefficientMap, IDoubleSource, Class<T>).  Check the character cases of \'" + str + "\' match, if the field exists in object implementing iDoubleSource, to ensure they match.");
+//			}	
+//						
+//			HashSet<String> regressors = new HashSet<String>();
+//			for(Object multiKey : coeffMultiMap.keySet())
+//			{
+//				regressors.add((String) ((MultiKey) multiKey).getKey(0)); 
+//			}
+//			
+//			for(String regressor : regressors) {
+//				attributesList.add(0, regressor);								//Inserts the regressor variable at the front of the list, to preserve the correct ordering of the multiKey
+//				MultiKey mk = new MultiKey(attributesList.toArray());				//Creates an Object[1], however coeffMultiMap expects an Object[3] as there are 3 keys (the actual entries as opposed to the MultiKey itself).  So try passing attributesVector.toArray() directly into the getValue function...			
+//				if(coeffMultiMap.containsKey(mk))		//Need to check that the multiKey exists in the coeffMultiMap, as it is possible to construct an attributesVector with entries that do not exist in the coeffMultiMap if there is a case where there is no entry for a specific Key(0) for the other attributes in Key(1) or Key(2) etc.  This is because Key(0) is currently taken from scanning through all the entries of the keySet of coeffMultiMap, and it is possible to combine this with Key(1), Key(2) etc. that are taken from the iDblSrc properties.  But no MultiKey with these values may exist in the coeffMultiMap!  
+//				{
+//					double coeff = (Double)coeffMultiMap.getValue(attributesList.toArray());
+//					//Gets the relevant coefficient of the MultiKeyCoefficient map, so even though ther first key in the MultiKey may not be unique (i.e. MultiKey.get(0)), the appropriate value of the MultiKeyCoefficientMap is distinguished by the rest of the keys, i.e. MultiKey.get(1), MultiKey.get(2), etc. (if they exist)
+//					regCoeffMap.put(regressor, coeff);
+//
+//					double value = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable called "key" from object implementing IDoubleSource interface
+//					valueMap.put(regressor, value);
+//				}
+//				attributesList.remove(0);				
+//			}
+//						
+//			Double sum = 0.0;
+//			for (String key : regCoeffMap.keySet()) {
+////				if (key.contains("@"))
+////					sum += (Double) (regCoeffMap.get(key) == null ? 0.0 : regCoeffMap.get(key));
+////				else
+////					sum += (Double) (regCoeffMap.get(key) == null ? 0.0 : regCoeffMap.get(key)) * (Double) (valueMap.get(key) == null ? 0.0 : valueMap.get(key));
+//				sum += regCoeffMap.get(key) * valueMap.get(key);
+//			}
+//			return sum;
+////			return multiplyCoeffsWithValues(regCoeffMap, valueMap);			//TODO: Test that we can delegate to multiplyCoeffsWithValues()
 
 		} catch (IllegalArgumentException e) {
 			System.err.println(e.getMessage());
