@@ -200,8 +200,55 @@ public class LinearRegression implements ILinearRegression {
 	public <T extends Enum<T>> double getScore(IDoubleSource iDblSrc, Class<T> enumType) {
 		return computeScore(map, iDblSrc, enumType);
 	}	
-	
+
+//	@Override
+	public <T extends Enum<T>, U extends Enum<U>> double getScore(IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) {
+		return computeScore(map, iDblSrc, enumTypeDouble, iObjSrc, enumTypeObject);
+	}	
+
 	/**
+	 * Requires the first column entry of the MultiKeyCoefficientMap (i.e. the first entry of coeffMultiMap's multiKey) to be the name of the regressor variables.  
+	 * The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class. 
+	 * @param coeffMultiMap is a MultiKeyCoefficientMap that has a MultiKey whose first Key is the name of the regressor variable.  The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class.
+	 * @param iDblSrc is an object that implements the IDoubleSource interface, and hence has a method getDoubleValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the keys of coeffMultiMap's MultiKey
+	 * @param enumTypeDouble specifies the enum type that is used in the getDoubleValue(Enum.valueOf(enumType, String)) method of the iDblSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate double value to return
+	 * @param iObjSrc is an object that implements the IObjectSource interface, and hence has a method getObjectValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the keys of coeffMultiMap's MultiKey
+	 * @param enumTypeObject specifies the enum type that is used in the getObjectValue(Enum.valueOf(enumType, String)) method of the iObjSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate object value to return
+
+	 * @author Ross Richardson  
+	 */
+	public static <T extends Enum<T>, U extends Enum<U>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) 
+	{				
+			double sum = 0.;
+			for (MapIterator iterator = coeffMultiMap.mapIterator(); iterator.hasNext();) {
+				iterator.next();
+				
+				MultiKey coeffMK = (MultiKey) iterator.getKey();
+				boolean coeffMKapplicableForIDblSrc = true;
+				int i = 1;	
+				while(i < coeffMultiMap.getKeys().length) {
+					if(!coeffMK.getKey(i).toString().equals(iObjSrc.getObjectValue(Enum.valueOf(enumTypeObject, coeffMultiMap.getKeys()[i])))) {
+						coeffMKapplicableForIDblSrc = false;
+						break;
+					}
+					i++;
+				}
+				if(coeffMKapplicableForIDblSrc == true) {
+					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
+					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumTypeDouble, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
+					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+//					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
+					sum += covariate * regCoefficient;
+				}
+					
+			}
+			return sum;
+	}
+
+		
+	/**
+	 * Uses reflection to obtain information from the iDblSrc object, so it is possibly slow.  For time critical cases, use the other computerScore method that requires 
+	 * passing in an object that implements the IObjectSource interface; this has signature:- public static <T extends Enum<T>, U extends Enum<U>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject)
 	 * Requires the first column entry of the MultiKeyCoefficientMap (i.e. the first entry of coeffMultiMap's multiKey) to be the name of the regressor variables.  
 	 * The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class. 
 	 * @param coeffMultiMap is a MultiKeyCoefficientMap that has a MultiKey whose first Key is the name of the regressor variable.  The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class.

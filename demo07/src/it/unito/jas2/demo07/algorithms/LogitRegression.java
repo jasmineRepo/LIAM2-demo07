@@ -61,4 +61,16 @@ public class LogitRegression extends LinearRegression implements IBinaryChoiceRe
 		return (random.nextDouble() < probability);		
 	}
 
+	public <T extends Enum<T>, U extends Enum<U>> double getProbability(IDoubleSource iDblSrc, Class<T> enumTypeDbl, IObjectSource iObjSrc, Class<U> enumTypeObj) {
+		final double score = super.getScore(iDblSrc, enumTypeDbl, iObjSrc, enumTypeObj);		
+		return (double) 1 / (1 + Math.exp(- score));			
+	}
+	
+//	@Override
+	public <T extends Enum<T>, U extends Enum<U>> boolean event(IDoubleSource iDblSrc, Class<T> enumTypeDbl, IObjectSource iObjSrc, Class<U> enumTypeObj) {
+		final double probability = getProbability(iDblSrc, enumTypeDbl, iObjSrc, enumTypeObj);
+		return (random.nextDouble() < probability);		
+	}
+
+	
 }

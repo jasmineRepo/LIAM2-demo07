@@ -1,5 +1,6 @@
 package it.unito.jas2.demo07.model;
 
+import it.unito.jas2.demo07.algorithms.IObjectSource;
 import it.unito.jas2.demo07.algorithms.MapAgeSearch;
 import it.unito.jas2.demo07.algorithms.RegressionUtils;
 import it.unito.jas2.demo07.data.Parameters;
@@ -12,7 +13,6 @@ import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
 import it.zero11.microsim.data.db.PanelEntityKey;
 import it.zero11.microsim.engine.SimulationEngine;
 import it.zero11.microsim.event.EventListener;
-
 import it.zero11.microsim.statistics.IDoubleSource;
 
 import javax.persistence.Column;
@@ -25,7 +25,7 @@ import javax.persistence.Transient;
 import org.jfree.util.Log;
 
 @Entity
-public class Person implements Comparable<Person>, EventListener, IDoubleSource 
+public class Person implements Comparable<Person>, EventListener, IDoubleSource, IObjectSource
 {
 	public static long personIdCounter = 100000;
 	
@@ -151,6 +151,29 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 			break;
 		}
 	}
+
+	// ---------------------------------------------------------------------
+	// implements IObjectSource for use with Regression classes
+	// ---------------------------------------------------------------------	
+		
+	public enum RegressionKeys {
+		gender,
+		workState,
+	}
+
+	public Object getObjectValue(Enum<?> variableID) {
+		switch ((RegressionKeys) variableID) {
+		
+		//For marriage regression
+		case gender:
+			return gender;
+		case workState:
+			return workState;
+		default:
+			throw new IllegalArgumentException("Unsupported regressor " + variableID.name() + " in Person#getDoubleValue");
+		}
+	}
+	
 	
 	// ---------------------------------------------------------------------
 	// implements IDoubleSource for use with Regression classes
@@ -410,7 +433,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 	public double getMarriageScore(Person potentialPartner) {
 				
 		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
-		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
+		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
 		this.setPotentialPartnerId(null);		//After regression, set to null, ready for calculating regression with next potential partner candidate.
 		
 		return marriageScore;
@@ -440,7 +463,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 	// this method returns a double in order to allow invocation by the model in the alignment closure
 	public double computeDivorceProb() {
 
-		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class);
+		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
 		if (divorceProb < 0 || divorceProb > 1) {
 			Log.error("divorce prob. not in range [0,1]");
 		}
@@ -462,7 +485,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource
 		double workProb = -1;
 
 		if(atRiskOfWork()) {
-			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class);
+			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
 		}
 		if (workProb < 0 || workProb > 1) {
 			Log.error("work prob. not in range [0,1]");
