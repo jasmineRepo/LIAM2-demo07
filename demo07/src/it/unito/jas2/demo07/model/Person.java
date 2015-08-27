@@ -170,7 +170,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		case workState:
 			return workState;
 		default:
-			throw new IllegalArgumentException("Unsupported regressor " + variableID.name() + " in Person#getDoubleValue");
+			throw new IllegalArgumentException("Unsupported regressor " + variableID.name() + " in Person#getObjectValue");
 		}
 	}
 	
