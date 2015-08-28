@@ -433,7 +433,8 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public double getMarriageScore(Person potentialPartner) {
 				
 		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
-		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+//		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
 		this.setPotentialPartnerId(null);		//After regression, set to null, ready for calculating regression with next potential partner candidate.
 		
 		return marriageScore;
@@ -463,7 +464,8 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// this method returns a double in order to allow invocation by the model in the alignment closure
 	public double computeDivorceProb() {
 
-		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+//		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class);
 		if (divorceProb < 0 || divorceProb > 1) {
 			Log.error("divorce prob. not in range [0,1]");
 		}
@@ -485,7 +487,9 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		double workProb = -1;
 
 		if(atRiskOfWork()) {
-			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);		//Has multiple keys, so use the IObjectSource mechanism (instead of the slow reflection mechanism)
+//			System.out.println("computeWorkProb");
+//			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class);			//Would use reflection in order to work (so slower)
 		}
 		if (workProb < 0 || workProb > 1) {
 			Log.error("work prob. not in range [0,1]");

@@ -5,6 +5,7 @@ package it.unito.jas2.demo07.algorithms;
 import it.zero11.microsim.statistics.IDoubleSource;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -198,51 +199,45 @@ public class LinearRegression implements ILinearRegression {
 	
 //	@Override
 	public <T extends Enum<T>> double getScore(IDoubleSource iDblSrc, Class<T> enumType) {
-		return computeScore(map, iDblSrc, enumType);
+		if(map.getKeys().length == 1) {
+			return computeScore(map, iDblSrc, enumType, true);			//No additional conditioning regression keys used, so no need to check for them
+		}
+		else {
+			return computeScore(map, iDblSrc, enumType);		//Additional conditioning regression keys used (map has more than one key in the multiKey, so need to use reflection (perhaps slow) in order to extract the underlying agents' properties e.g. gender or civil status, in order to determine the relevant regression co-efficients.  If time is critical, consider making the underlying agent (the IDoubleSource) also implement the IObjectSource interface, which uses a faster method to retrieve information about the agent instead of reflection.
+		}
 	}	
 
-//	@Override
-	public <T extends Enum<T>, U extends Enum<U>> double getScore(IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) {
-		return computeScore(map, iDblSrc, enumTypeDouble, iObjSrc, enumTypeObject);
-	}	
-
+	
 	/**
-	 * Requires the first column entry of the MultiKeyCoefficientMap (i.e. the first entry of coeffMultiMap's multiKey) to be the name of the regressor variables.  
+	 * Use this method when the underlying agent does not have any additional conditioning regression keys (such as the gender or civil status) to determine the appropriate regression co-efficients, i.e. the regression co-efficients do not depend on any properties of the underlying model. 
+	 * Requires that the MultiKeyCoefficientMap only has one entry in the multiKey - that of the name of the regressor variables.  
 	 * The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class. 
 	 * @param coeffMultiMap is a MultiKeyCoefficientMap that has a MultiKey whose first Key is the name of the regressor variable.  The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class.
 	 * @param iDblSrc is an object that implements the IDoubleSource interface, and hence has a method getDoubleValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the keys of coeffMultiMap's MultiKey
-	 * @param enumTypeDouble specifies the enum type that is used in the getDoubleValue(Enum.valueOf(enumType, String)) method of the iDblSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate double value to return
-	 * @param iObjSrc is an object that implements the IObjectSource interface, and hence has a method getObjectValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the keys of coeffMultiMap's MultiKey
-	 * @param enumTypeObject specifies the enum type that is used in the getObjectValue(Enum.valueOf(enumType, String)) method of the iObjSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate object value to return
-
+	 * @param enumType specifies the enum type that is used in the getDoubleValue(Enum.valueOf(enumType, String)) method of the iDblSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate double value to return
 	 * @author Ross Richardson  
 	 */
-	public static <T extends Enum<T>, U extends Enum<U>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) 
-	{				
+	public static <T extends Enum<T>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumType, boolean singleKeyCoefficients) 
+	{
+//		System.out.println("singleKeyCoefficients " + singleKeyCoefficients);
+//		if(singleKeyCoefficients) {
+		if(coeffMultiMap.getKeys().length == 1) {			//(double) check that there is only one key entry in the MultiKey of coeffMultiMap
 			double sum = 0.;
 			for (MapIterator iterator = coeffMultiMap.mapIterator(); iterator.hasNext();) {
 				iterator.next();
 				
-				MultiKey coeffMK = (MultiKey) iterator.getKey();
-				boolean coeffMKapplicableForIDblSrc = true;
-				int i = 1;	
-				while(i < coeffMultiMap.getKeys().length) {
-					if(!coeffMK.getKey(i).toString().equals(iObjSrc.getObjectValue(Enum.valueOf(enumTypeObject, coeffMultiMap.getKeys()[i])))) {
-						coeffMKapplicableForIDblSrc = false;
-						break;
-					}
-					i++;
-				}
-				if(coeffMKapplicableForIDblSrc == true) {
-					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
-					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumTypeDouble, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
-					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
-//					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
-					sum += covariate * regCoefficient;
-				}
-					
+				MultiKey coeffMK = (MultiKey) iterator.getKey();	
+				String regressor = ((String) ((MultiKey) coeffMK).getKey(0));							//coeffMK is assumed to only have a single key here
+				double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
+				double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+//				System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
+				sum += covariate * regCoefficient;				
 			}
 			return sum;
+		} else {
+			throw new IllegalArgumentException("Error - the map of the LinearRegression object has more than one key entry for each multiKey, whereas the LinearRegression.computeScore() method that has been called assumes only one key entry.  Check how computeScore(MultiKeyCoefficientMap, IDoubleSource, boolean) method is being called."
+			 + "\n" + Arrays.toString(Thread.currentThread().getStackTrace()));
+		}
 	}
 
 		
@@ -258,6 +253,7 @@ public class LinearRegression implements ILinearRegression {
 	 */
 	public static <T extends Enum<T>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumType) 
 	{				
+//		System.out.println("Reflection method");
 		try {			
 			Map<?, ?> describedData = PropertyUtils.describe(iDblSrc);
 			Map<String, String> propertyMap = new HashMap<String, String>();
@@ -468,5 +464,52 @@ public class LinearRegression implements ILinearRegression {
 		} 
 	}
 
+	
+//	@Override
+	public <T extends Enum<T>, U extends Enum<U>> double getScore(IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) {
+		return computeScore(map, iDblSrc, enumTypeDouble, iObjSrc, enumTypeObject);
+	}	
+	
+	/**
+	 * Requires the implementation of the IObjectSource to ascertain whether any additional conditioning regression keys are used (e.g. whether the underlying agent is female, married etc., where the regression co-efficients are conditioned on additional keys of gender and civil status, for example).
+	 * If the underlying agent does not implement IObjectSource but does have additional conditioning regression keys, use the computeScore method (that uses reflection, so is slower) with signature:- public static <T extends Enum<T>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumType)
+	 * If the underlying agent does not have additional conditioning regression keys, use the computeScore method with signature:-     
+	 * Requires the first column entry of the MultiKeyCoefficientMap (i.e. the first entry of coeffMultiMap's multiKey) to be the name of the regressor variables.  
+	 * The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class. 
+	 * @param coeffMultiMap is a MultiKeyCoefficientMap that has a MultiKey whose first Key is the name of the regressor variable.  The names of the other keys of the coeffMultiMap must match the (case sensitive) name of the corresponding fields of the iDblSrc class.
+	 * @param iDblSrc is an object that implements the IDoubleSource interface (e.g. the underlying agent whose properties are the covariates), and hence has a method getDoubleValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the first key entry of the coeffMultiMap's MultiKey
+	 * @param enumTypeDouble specifies the enum type that is used in the getDoubleValue(Enum.valueOf(enumType, String)) method of the iDblSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate double value to return
+	 * @param iObjSrc is an object that implements the IObjectSource interface (e.g. the underlying agent whose properties are the covariates), and hence has a method getObjectValue(enum), where the enum determines the appropriate double value to return.  It must have some fields that match the (case sensitive) name of the conditioning regression key entries of coeffMultiMap's MultiKey (not the first key entry, which is reserved for the regressor name)
+	 * @param enumTypeObject specifies the enum type that is used in the getObjectValue(Enum.valueOf(enumType, String)) method of the iObjSrc object.  The String is the name of the enum case, used as a switch to determine the appropriate object value to return
+
+	 * @author Ross Richardson  
+	 */
+	public static <T extends Enum<T>, U extends Enum<U>> double computeScore(MultiKeyCoefficientMap coeffMultiMap, IDoubleSource iDblSrc, Class<T> enumTypeDouble, IObjectSource iObjSrc, Class<U> enumTypeObject) 
+	{				
+			double sum = 0.;
+			for (MapIterator iterator = coeffMultiMap.mapIterator(); iterator.hasNext();) {
+				iterator.next();
+				
+				MultiKey coeffMK = (MultiKey) iterator.getKey();
+				boolean coeffMKapplicableForIDblSrc = true;
+				int i = 1;	
+				while(i < coeffMultiMap.getKeys().length) {
+					if(!coeffMK.getKey(i).toString().equals(iObjSrc.getObjectValue(Enum.valueOf(enumTypeObject, coeffMultiMap.getKeys()[i])))) {
+						coeffMKapplicableForIDblSrc = false;
+						break;
+					}
+					i++;
+				}
+				if(coeffMKapplicableForIDblSrc == true) {
+					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
+					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumTypeDouble, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
+					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+//					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
+					sum += covariate * regCoefficient;
+				}
+					
+			}
+			return sum;
+	}
 	
 }
