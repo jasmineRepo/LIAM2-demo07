@@ -432,10 +432,42 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public double getMarriageScore(Person potentialPartner) {
 				
-		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
-//		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
-		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
-		this.setPotentialPartnerId(null);		//After regression, set to null, ready for calculating regression with next potential partner candidate.
+//		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
+//		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
+//		this.setPotentialPartnerId(null);		//After regression, set to null, ready for calculating regression with next potential partner candidate.
+		
+		double marriageScore = 0.;
+		
+		//partner age effects
+		double partnerAge = potentialPartner.getAge();
+		double partnerAgeSq = partnerAge * partnerAge;
+		double partnerAgeCub = partnerAge * partnerAgeSq;
+		marriageScore += -0.4893 * partnerAge;
+		marriageScore += 0.0131 * partnerAgeSq;
+		marriageScore += -0.0001 * partnerAgeCub;
+
+		//age difference effects
+		if(potentialPartnerId != null)
+		{
+			double ageDiff = age - partnerAge;
+			double ageDiffSq = ageDiff * ageDiff;
+			double ageDiffCub = ageDiff * ageDiffSq;
+			marriageScore += -0.0467 * ageDiff;
+			marriageScore += -0.0189 * ageDiffSq;
+			marriageScore += -0.0003 * ageDiffCub;
+		}		
+		
+		//workstate effects
+		int partnerWork = potentialPartner.getEmployed();
+		if(partnerWork == 1) {		//i.e. potential partner is employed
+			if(this.workState.equals(WorkState.Employed)) {
+				marriageScore += -0.6549;
+			}
+			else marriageScore += -0.9087;
+		}
+		else if(this.workState.equals(WorkState.Employed)) {
+			marriageScore += -1.3286;
+		}
 		
 		return marriageScore;
 	}
@@ -465,10 +497,35 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public double computeDivorceProb() {
 
 //		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
-		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class);
-		if (divorceProb < 0 || divorceProb > 1) {
-			Log.error("divorce prob. not in range [0,1]");
+//		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class);
+//		if (divorceProb < 0 || divorceProb > 1) {
+//			Log.error("divorce prob. not in range [0,1]");
+//		}
+		if( (partnerId == null) || (gender != Gender.Female) ) {
+			throw new IllegalArgumentException("computeDivorceProb called, but either partnerId is null, or person is not a Female");
 		}
+
+		double divorceProb = -4.546278;			//regression intercept is -4.546278
+
+		//number of children effect
+//		if(this.gender == Gender.Female)		//We assume it doesn't matter whether the current partner is also the biological parent of the children in the household.  This is justified, as the divorceRegression is only called by females, who keep their household on divorce and who never live with children whose mother is another female.  TODO:CHECK!!!
+//		{										//Another assumption is that, in the divorce regression, when the number of children is taken into account, this is only measuring the sons and daughters under 18 years old, and that sons and daughters of age 18 or over have no influence in whether a couple decide to divorce.
+			int nChildren = model.getHousehold(this.getHouseholdId()).getNbChildren();	//Another slower way would be to loop through all people and add up the number of people whose motherId matches this person.
+			divorceProb += 0.6713593 * nChildren;
+//		}
+				
+		//duration in couple effect
+		divorceProb += -0.0785202 * durationInCouple;
+		
+		//age difference effect
+		double ageDiff = age - model.getPerson(this.getPartnerId()).getAge();
+		double ageDiffSq = ageDiff * ageDiff;
+		divorceProb += 0.1429621 * ageDiff;
+		divorceProb += -0.0088308 * ageDiffSq;
+		
+		//workstate effects
+		double bothWork = (workState.equals(WorkState.Employed) && model.getPerson(partnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
+		divorceProb += -0.814204 * bothWork;
 		
 		return divorceProb;
 	}		
@@ -484,16 +541,86 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// this method returns a double in order to allow invocation by the model in the alignment closure
 	protected double computeWorkProb() {
 
-		double workProb = -1;
+		double workProb;
+//
+//		if(atRiskOfWork()) {
+//			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);		//Has multiple keys, so use the IObjectSource mechanism (instead of the slow reflection mechanism)
+//		}
+//		if (workProb < 0 || workProb > 1) {
+//			Log.error("work prob. not in range [0,1]");
+//		}
+		
+		if(gender.equals(Gender.Male)) {
+			if(workState.equals(WorkState.Employed)) {
+				//regression intercept
+				workProb = 3.554612;
+				
+				//age effects
+				double ageSq = age * age;
+				double ageCub = age * ageSq;
+				workProb += -0.196599 * age;
+				workProb += 0.0086552 * ageSq;
+				workProb += -0.000988 * ageCub;
+				
+				//civil status effects
+				if (civilState.equals(CivilState.Married)) {
+					workProb += 0.1892796;
+				}
 
-		if(atRiskOfWork()) {
-			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);		//Has multiple keys, so use the IObjectSource mechanism (instead of the slow reflection mechanism)
-//			System.out.println("computeWorkProb");
-//			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class);			//Would use reflection in order to work (so slower)
+			}
+			else {			//Not employed
+				//regression intercept
+				workProb = -12.39108;
+				
+				//age effects
+				double ageSq = age * age;
+				double ageCub = age * ageSq;
+				workProb += 0.9780908 * age;
+				workProb += -0.0261765 * ageSq;
+				workProb += 0.000199 * ageCub;
+				
+//				//civil status effects			//Does not appear in regression in LIAM2 demo7 for males not in work
+//				if (civilState.equals(CivilState.Married)) {
+//					workProb += ;
+//				}
+				
+			}			
 		}
-		if (workProb < 0 || workProb > 1) {
-			Log.error("work prob. not in range [0,1]");
+		else {				//Female
+			if(workState.equals(WorkState.Employed)) {
+				//regression intercept
+				workProb = 3.648706;
+				
+				//age effects
+				double ageSq = age * age;
+				double ageCub = age * ageSq;
+				workProb += -0.2740483 * age;
+				workProb += 0.0109883 * ageSq;
+				workProb += -0.0001159 * ageCub;
+				
+				//civil status effects
+				if (civilState.equals(CivilState.Married)) {
+					workProb += -0.0906834;
+				}
+			}
+			else {			//Not employed
+				//regression intercept
+				workProb = -10.48043;
+				
+				//age effects
+				double ageSq = age * age;
+				double ageCub = age * ageSq;
+				workProb += 0.8217638 * age;
+				workProb += -0.0219761 * ageSq;
+				workProb += 0.000166 * ageCub;
+				
+				//civil status effects
+				if (civilState.equals(CivilState.Married)) {
+					workProb += -0.5590975;
+				}
+			}
 		}
+		
 		return workProb;
 		
 	}
