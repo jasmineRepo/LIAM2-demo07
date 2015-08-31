@@ -101,11 +101,11 @@ public class Household implements EventListener {
 		return householdMembers.add(person);
 	}
 	
-	public Integer getNbPersons() {
+	public int getNbPersons() {
 		return householdMembers.size();	
 	}
 
-	public Integer getNbChildren() {
+	public int getNbChildren() {
 		return 	CollectionUtils.countMatches(getHouseholdMembers(),  new Predicate() {
 			@Override
 			public boolean evaluate(Object object) {

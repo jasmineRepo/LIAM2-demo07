@@ -220,7 +220,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		for(Person person : persons)
 		{
 			//Add people to households
-			if(person.getHouseholdId() == null)		//TODO: Should throw an exception if there are people without householdsId in input database
+			if(person.getHouseholdId() < 0)		//TODO: Should throw an exception if there are people without householdsId in input database
 			{
 				System.out.println("Person " + person.getId().getId() + " lives in household " + person.getHouseholdId());
 			}
@@ -244,7 +244,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 				}
 				
 				// 2) remove married persons not living in the same household
-				else if ( (thisPerson.getHouseholdId()).longValue() != (otherPerson.getHouseholdId()).longValue() ) {
+				else if ( thisPerson.getHouseholdId() != otherPerson.getHouseholdId() ) {
 //					System.out.println("Person " + thisPerson.getId().getId() + " has HouseholdID " + thisPerson.getHouseholdId() + " whereas their partner " + thisPerson.getPartnerId() + " who should have ID " + otherPerson.getId().getId() + " has householdID " + otherPerson.getHouseholdId());
 					peopleToRemove.add(thisPerson);
 				}				
