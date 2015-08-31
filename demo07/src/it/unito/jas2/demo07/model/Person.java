@@ -35,7 +35,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Id
 	private PanelEntityKey id;
 		
-	private Integer age;
+	private int age;
 	
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
@@ -57,7 +57,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private Long partnerId;
 	
 	@Column(name="hh_id")
-	private Long householdId;
+	private long householdId;
 
 	@Column(name="alone")
 	private Boolean alone;
@@ -74,10 +74,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private Education educationlevel;
 
 	@Transient
-	private Boolean toCouple;
+	private boolean toCouple;
 
 	@Transient
-	private Boolean toDivorce;
+	private boolean toDivorce;
 	
 	@Transient
 	private double divorceProb;
@@ -86,7 +86,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private double workProb;
 	
 	@Transient
-	private Long potentialPartnerId;
+	private long potentialPartnerId;
 
 //	@Transient
 //	private LaggedVariables lagged;
@@ -255,30 +255,30 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public double getPartnerAge()
 	{
-		if(partnerId != null)
-		{
+//		if(partnerId != null)
+//		{
 			return model.getPerson(this.getPartnerId()).getAge();	
-		}
-		else return 0.;
+//		}
+//		else return 0.;
 				
 	}
 
 	public double getPotentialPartnerAge()
 	{
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			return model.getPerson(this.getPotentialPartnerId()).getAge();
-		}
-		else return 0.;
+//		}
+//		else return 0.;
 	}
 	
 	public double getPotentialAgeDiff()
 	{
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			return (double)(age - model.getPerson(potentialPartnerId).getAge());
-		}
-		else return 0.;
+//		}
+//		else return 0.;
 	}
 	// ---------------------------------------------------------------------
 	// own methods
@@ -447,15 +447,15 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		marriageScore += -0.0001 * partnerAgeCub;
 
 		//age difference effects
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			double ageDiff = age - partnerAge;
 			double ageDiffSq = ageDiff * ageDiff;
 			double ageDiffCub = ageDiff * ageDiffSq;
 			marriageScore += -0.0467 * ageDiff;
 			marriageScore += -0.0189 * ageDiffSq;
 			marriageScore += -0.0003 * ageDiffCub;
-		}		
+//		}		
 		
 		//workstate effects
 		int partnerWork = potentialPartner.getEmployed();
@@ -651,11 +651,11 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		this.id = id;
 	}
 
-	public Integer getAge() {
+	public int getAge() {
 		return age;
 	}
 
-	public void setAge(Integer age) {
+	public void setAge(int age) {
 		this.age = age;
 	}
 
@@ -713,6 +713,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 	public Integer getDurationInCouple() {
 		return (durationInCouple != null ? durationInCouple : 0);
+//		return durationInCouple;
 	}
 
 	public void setDurationInCouple(Integer durationInCouple) {
@@ -735,20 +736,20 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		this.partnerId = partnerId;
 	}
  	
- 	public Long getPotentialPartnerId() {
+ 	public long getPotentialPartnerId() {
 		return potentialPartnerId;
 	}
 	
- 	public void setPotentialPartnerId(Long potentialPartnerId) {
+ 	public void setPotentialPartnerId(long potentialPartnerId) {
 		this.potentialPartnerId = potentialPartnerId;
 	}
 
-	public Long getHouseholdId() {
+	public long getHouseholdId() {
 		return householdId;
 	}
 
-	public void setHouseholdId(Long householdId) {
-		if (this.householdId != null) 
+	public void setHouseholdId(long householdId) {
+//		if (this.householdId != null) 
 			model.getHousehold(this.householdId).removePerson(this);			
 		this.householdId = householdId;
 		model.getHousehold(householdId).addPerson(this);
@@ -795,25 +796,28 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 	public Boolean getAlone() {
 		return (alone != null ? alone : false);
+//		return alone;
 	}
 
 	public void setAlone(Boolean alone) {
 		this.alone = alone;
 	}
 
-	public Boolean getToDivorce() {
-		return (toDivorce != null ? toDivorce : false);
+	public boolean getToDivorce() {
+//		return (toDivorce != null ? toDivorce : false);
+		return toDivorce;
 	}
 
-	public void setToDivorce(Boolean toDivorce) {
+	public void setToDivorce(boolean toDivorce) {
 		this.toDivorce = toDivorce;
 	}
 
-	public Boolean getToCouple() {
-		return (toCouple != null ? toCouple : false);
+	public boolean getToCouple() {
+//		return (toCouple != null ? toCouple : false);
+		return toCouple;
 	}
 
-	public void setToCouple(Boolean toCouple) {
+	public void setToCouple(boolean toCouple) {
 		this.toCouple = toCouple;
 	}
 	
@@ -830,43 +834,43 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 	
 	private double getBothWork() {
-		if(partnerId != null)
-		{
+//		if(partnerId != null)
+//		{
 			return (getWorkState().equals(WorkState.Employed) && model.getPerson(partnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
-		}
-		else return 0.;		
+//		}
+//		else return 0.;		
 	}
 		
 	private double getNotInWorkAndPotentialPartnerInWork() {
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			return (!getWorkState().equals(WorkState.Employed) && model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
-		}
-		else return 0.;
+//		}
+//		else return 0.;
 	}
 
 	private double getInWorkAndPotentialPartnerNotInWork() {
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			return (getWorkState().equals(WorkState.Employed) && !model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
-		}
-		else return 0.;
+//		}
+//		else return 0.;
 	}
 	
 	private double getInWorkAndPotentialPartnerInWork() {
-		if(potentialPartnerId != null)
-		{
+//		if(potentialPartnerId != null)
+//		{
 			return (getWorkState().equals(WorkState.Employed) && model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
-		}
-		else return 0.;		
+//		}
+//		else return 0.;		
 	}
 
 	public double getAgeDiff() {
-		if(partnerId != null)
-		{
+//		if(partnerId != null)
+//		{
 			return (double)(age - model.getPerson(partnerId).getAge());	
-		}
-		else return 0.; 
+//		}
+//		else return 0.; 
 	}
 
 	public double getNbChildren() {
