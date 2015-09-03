@@ -31,6 +31,7 @@ import it.zero11.microsim.matching.SimpleMatching;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.MapIterator;
@@ -80,12 +81,15 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {	
 		case DivorceAlignment:
+			System.out.println("DivorceAlignment");
 			divorceAlignment();
 			break;
 		case InWorkAlignment:
+			System.out.println("InWorkAlignment");
 			inWorkAlignment();
 			break;
 		case MarriageMatching:
+			System.out.println("MarriageMatching");
 			marriageMatching();
 			break;
 		case Stop:
@@ -121,6 +125,20 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		persons = (List<Person>) DatabaseUtils.loadTable(Person.class);
 		System.out.println("Initial population loaded from input database.");
 		
+//		//Linked List implementation /////////////////////////////////////////////////////////////////////////////////
+//		List<Person> initialPopulation = (List<Person>) DatabaseUtils.loadTable(Person.class);        //RHS returns an ArrayList, not a LinkedList, so need to copy to new LinkedList below
+//		List<Household> initialHouseholds = (List<Household>) DatabaseUtils.loadTable(Household.class);        //RHS returns an ArrayList, not a LinkedList, so need to copy to new LinkedList below
+////        Collections.shuffle(initialPopulation);
+//        System.out.println("Initial population loaded from input database.");
+//        persons = new LinkedList<Person>();
+//        households = new LinkedList<Household>();
+//        
+//        // create LinkedList type to allow faster removal of randomly scattered entries (in population alignment module)
+//        for (int i=0; i<initialPopulation.size(); i++) persons.add(initialPopulation.get(i));						  // copy desired sample size to LinkedList
+//        for (int i=0; i<initialHouseholds.size(); i++) households.add(initialHouseholds.get(i));						  // copy desired sample size to LinkedList
+//        initialPopulation = null;
+//        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
 		initializeNonDatabaseAttributes();		//Initialize attributes that do not appear in the input database
 		addPersonsToHouseholds();				//Add the population to the households.
 		cleanInitialPopulation();						//This ensures that marriage partnerships can only occur between reciprocal partners who live in the same household.
@@ -213,6 +231,18 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			// # education level
 			person.setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );		//Sets educationlevel of initial population randomly. 
 			person.inEducation();		//Changes the workstate of students over certain age to NotEmployed
+			
+			Long partnerId = person.getPartnerId();
+			Long motherId = person.getMotherId();
+			Long householdId = person.getHouseholdId();
+			if(partnerId != null)
+				person.setPartner(getPerson( partnerId ));
+			if(motherId != null) 
+				person.setMother(getPerson( motherId));
+			if(householdId != null) {
+				person.setHousehold(getHousehold(householdId));
+			}
+
 		}
 	}
 
@@ -224,7 +254,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			{
 				System.out.println("Person " + person.getId().getId() + " lives in household " + person.getHouseholdId());
 			}
-			else this.getHousehold(person.getHouseholdId()).addPerson(person);		//This was originally missing, so households were not containing any households, leading to the original IllegalArgumentExceptions being thrown. 				
+			else{
+//				this.getHousehold(person.getHouseholdId()).addPerson(person);		//This was originally missing, so households were not containing any households, leading to the original IllegalArgumentExceptions being thrown.
+				person.getHousehold().addPerson(person);
+			}
 		}
 	}
 				
@@ -265,7 +298,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		
 		for(Household household : households)		//Check for any empty households and remove if found.
 		{
-			if(household.getNbPersons() < 1)
+			if(household.getHouseholdMembers().isEmpty())
 			{
 				this.removeHousehold(household);
 				nRemovedHouseholds++;
@@ -446,13 +479,16 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	}
 	
 	public boolean removePerson(Person person) {
-		boolean isRemoveSuccessful = persons.remove(person);
-		return isRemoveSuccessful;
+		System.out.println("removed person " + person.getId().getId());
+		return persons.remove(person);
 	}
 	
 	public boolean removeHousehold(Household household) {
-		boolean isRemoveSuccessful = households.remove(household);
-		return isRemoveSuccessful;
+		System.out.println("removed household " + household.getId().getId());
+		if(!household.getHouseholdMembers().isEmpty()) {
+			System.out.println("Household id " + household.getId().getId() + " is not empty, but is to be removed from model!");
+		}
+		return households.remove(household);
 	}
 
 	public Boolean getPrintElapsedTime() {

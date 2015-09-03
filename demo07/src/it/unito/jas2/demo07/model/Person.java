@@ -53,12 +53,21 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Column(name="mother_id")
 	private Long motherId;
 	
+	@Transient
+	private Person mother;
+	
 	@Column(name="partner_id")
 	private Long partnerId;
+	
+	@Transient
+	private Person partner;
 	
 	@Column(name="hh_id")
 	private long householdId;
 
+	@Transient
+	private Household household;
+	
 	@Column(name="alone")
 	private Boolean alone;
 
@@ -129,24 +138,31 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {
 		case Ageing:
+			System.out.println("Ageing");
 			ageing();		
 			break;
 		case Death:
+			System.out.println("Death");
 			death();
 			break;
 		case Birth:
+			System.out.println("Birth");
 			birth();
 			break;	
 		case ToCouple:
+			System.out.println("ToCouple");
 			toCouple();
 			break;	
 		case Divorce:
+			System.out.println("Divorce");
 			divorce();
 			break;	
 		case GetALife:
+			System.out.println("GetALife");
 			getALife();
 			break;			
 		case InEducation:
+			System.out.println("InEducation");
 			inEducation();
 			break;
 		}
@@ -320,14 +336,20 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		if ( RegressionUtils.event(deathProbability) ) {
 			// update partner's status
 			if (this.getCivilState().equals(CivilState.Married)) {			//if (this.getPartnerId() != null) { 
-				Person partner = model.getPerson(partnerId);				//Throws illegal argument exception if partnerId doesn't exist
+//				Person partner = model.getPerson(partnerId);				//Throws illegal argument exception if partnerId doesn't exist
+				if(partner == null) {
+					System.out.println("id ," + this.getId().getId() + ", partnerId ," + partnerId + ", partner ," + partner);
+				}
 				partner.setCivilState(CivilState.Widow);
-				partner.setPartnerId(null);
+//				partner.setPartnerId(null);
+				partner.setPartner(null);
 			}
 			// remove from household (this removes household if no other members are left)
-			Household hh = model.getHousehold(householdId);
-			hh.removePerson(this);
+//			Household hh = model.getHousehold(householdId);
+			household.removePerson(this);
+			household = null;
 			
+			mother = null;
 			// remove from model
 			model.removePerson(this);
 		}
@@ -337,16 +359,19 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// Setup own household if aged 24 or over and not married (and still living with others)
 	protected void getALife() {
 
-		setAlone(model.getHousehold(householdId).getNbPersons() == 1);		//Throws illegal argument exception if householdID doesn't exist
+		setAlone(model.getHousehold(householdId).getHouseholdMembers().size() == 1);		//Throws illegal argument exception if householdID doesn't exist
+//		setAlone(household.getHouseholdMembers().size() == 1);
 		
 		if (!(civilState.equals(CivilState.Married)) && !(alone) && (age >= 24)) {
 			
 			// create new household
-			Household newHousehold = new Household( (Household.householdIdCounter)++ );
-	        model.getHouseholds().add(newHousehold);	        
+//			Household newHousehold = new Household( (Household.householdIdCounter)++ );
 	        
+	        resetHousehold(new Household( (Household.householdIdCounter)++));
+	        model.getHouseholds().add(household);
 	        // record household id
-	        setHouseholdId(newHousehold.getId().getId());
+//	        setHouseholdId(newHousehold.getId().getId());		//Now within setHousehold
+	        
 
 		}
 		
@@ -361,8 +386,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 					
 					Person newborn = new Person( (Person.personIdCounter)++ );
 					newborn.setAge(0);			//Why aren't all these person attributes set in the constructor?  TODO: Move them to constructor if possible
-					newborn.setMotherId(this.getId().getId());
-					newborn.setHouseholdId(this.getHouseholdId());
+//					newborn.setMotherId(this.getId().getId());
+					newborn.setMother(this);
+//					newborn.setHouseholdId(this.getHouseholdId());
+					newborn.setHousehold(this.household);
 					newborn.setGender( RegressionUtils.event(Gender.class, new double[] {0.49, 0.51}) );		//0.49 for females, 0.51 for males.  As I swapped enum definition of gender around to be consistent with input data, this also needs to be swapped.
 					newborn.setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );  // RMK: education is predetermined at birth
 					newborn.setCivilState(CivilState.Single);
@@ -370,10 +397,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 					//Add newborn to the model and add it to the mother's household
 					model.getPersons().add(newborn);
-					model.getHousehold(householdId).addPerson(newborn);					
+//					model.getHousehold(householdId).addPerson(newborn);		//Done within setHoushold() now					
 				}
 			} catch(Exception e) {
-				Log.error("baba exception " + this.age);
+				Log.error("birth exception " + this.age);
 			}
 			
 		}			
@@ -384,7 +411,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	protected void divorce() {
 
 		if (getPartnerId() != null) {
-			Person partner = model.getPerson(getPartnerId());
+//			Person partner = model.getPerson(getPartnerId());
 			if (this.getToDivorce() || partner.getToDivorce()) {				//The first condition used the toDivorce boolean flag directly, but caused an Exception as it can be null.  Instead, if we use this.getToDivorce(), null values are caught by the getter.			
 
 				//# break link to partner
@@ -396,9 +423,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 				if (getGender().equals(Gender.Male) && this.getToDivorce()) {
 
 					// create new household
-					Household newHousehold = new Household( (Household.householdIdCounter)++ );		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
-					model.getHouseholds().add(newHousehold);
-					setHouseholdId(newHousehold.getId().getId());		// record household id
+//					long newHouseholdId = (Household.householdIdCounter)++;
+					resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
+					model.getHouseholds().add(household);
+//					setHouseholdId(newHouseholdId);		// record household id
 				}		
 			}
 		}
@@ -442,19 +470,28 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public void marry(Person partner) {
 		
+		this.partner = partner;
 		setPartnerId(partner.getId().getId());
 
 		if (gender.equals(Gender.Female)) {			//TODO: Female partner should always be called before male partner, given the ordering of the collection of females and males supplied to the matching() method in PersonsModel#marriageMatching().  But do we want to add a check?
 
 			// create new household
-			Household newHousehold = new Household( (Household.householdIdCounter)++ );
-			model.getHouseholds().add(newHousehold);
-
-			// record household id
-			setHouseholdId(newHousehold.getId().getId());			//Whenever we setHouseholdId, we automatically remove the person from the previous house and add to the new house!  There used to be an IllegalArgumentException as the person was explicitly removed from the household at the beginning of this marry() method! 
+//			long newHouseholdId = (Household.householdIdCounter)++;
+			resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
+			model.getHouseholds().add(household);
+//			setHouseholdId(newHouseholdId);		// record household id
+			
+//			// create new household
+//			Household newHousehold = new Household( (Household.householdIdCounter)++ );
+//			model.getHouseholds().add(newHousehold);
+//
+//			// record household id
+//			setHouseholdId(newHousehold.getId().getId());			//Whenever we setHouseholdId, we automatically remove the person from the previous house and add to the new house!  There used to be an IllegalArgumentException as the person was explicitly removed from the household at the beginning of this marry() method! 
 
 		} else {
-			setHouseholdId(model.getPerson(getPartnerId()).getHouseholdId());
+//			setHouseholdId(model.getPerson(getPartnerId()).getHouseholdId());
+//			setHouseholdId(partner.getHouseholdId());
+			resetHousehold(partner.getHousehold());
 		}
 
 		setCivilState(CivilState.Married);
@@ -622,9 +659,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 	public void setHouseholdId(long householdId) {
 //		if (this.householdId != null) 
-			model.getHousehold(this.householdId).removePerson(this);			
+//			model.getHousehold(this.householdId).removePerson(this);		//Now done in setHousehold()
 		this.householdId = householdId;
-		model.getHousehold(householdId).addPerson(this);
+//		model.getHousehold(householdId).addPerson(this);					//Now done in setHousehold()
+		
 	}
 
 //	public Integer getAgeGroupWork() {
@@ -750,6 +788,45 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 			return (double) model.getHousehold(getHouseholdId()).getNbChildren();	//Another slower way would be to loop through all people and add up the number of people whose motherId matches this person.
 		}
 		else return 0.;		
+	}
+
+	public Person getMother() {
+		return mother;
+	}
+
+	public void setMother(Person mother) {
+		this.setMotherId(mother.getId().getId());
+		this.mother = mother;
+	}
+
+	public Person getPartner() {
+		return partner;
+	}
+
+	public void setPartner(Person partner) {
+		if(partner != null) {
+			this.setPartnerId(partner.getId().getId());
+		}
+		else {
+			partnerId = null;
+		}
+		this.partner = partner;
+	}
+
+	public Household getHousehold() {
+		return household;
+	}
+	
+	public void setHousehold(Household household) {
+		this.household = household;
+		this.householdId = household.getId().getId();
+	}
+
+	public void resetHousehold(Household household) {
+		this.household.removePerson(this);
+		this.household = household;
+		household.addPerson(this);
+		this.householdId = household.getId().getId();
 	}	
 	
 }
