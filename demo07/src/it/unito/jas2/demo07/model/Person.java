@@ -362,8 +362,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// Setup own household if aged 24 or over and not married (and still living with others)
 	protected void getALife() {
 
-		//Bug where householdId still in existence after house has been removed...?
-//		setAlone(model.getHousehold(householdId).getHouseholdMembers().size() == 1);		//Throws illegal argument exception if householdID doesn't exist
 		setAlone(household.getHouseholdMembers().size() == 1);
 		
 		if (!(civilState.equals(CivilState.Married)) && !(alone) && (age >= 24)) {
