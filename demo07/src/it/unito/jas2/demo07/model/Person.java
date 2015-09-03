@@ -274,30 +274,17 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public double getPartnerAge()
 	{
-//		if(partnerId != null)
-//		{
-			return partner.getAge();	
-//		}
-//		else return 0.;
-				
+			return partner.getAge();					
 	}
 
 	public double getPotentialPartnerAge()
 	{
-//		if(potentialPartnerId != null)
-//		{
 			return potentialPartner.getAge();
-//		}
-//		else return 0.;
 	}
 	
 	public double getPotentialAgeDiff()
 	{
-//		if(potentialPartnerId != null)
-//		{
 			return (double)(age - potentialPartner.getAge());
-//		}
-//		else return 0.;
 	}
 	// ---------------------------------------------------------------------
 	// own methods
@@ -306,13 +293,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	protected void ageing() {
 //		if (age<100) {			//Why have this 'artificial' age restriction?  The probability of death is 1.0 for people aged 99 and over, so people should be removed from the simulation anyway when they reach 100, so why worry about putting in this condition?
 			age += 1;
-			
-			//TODO: The ageGroup fields do not appear to be used anywhere in the simulation (and are @Transient).  Should we remove them?
-//			ageGroupCivilState = (age < 50 ? age - age % 5 : age - age % 10);		//This puts the person into a higher Civil State 'bin' after every 5 years of ageing up to 50 years old, then after every 10 years for 50 years or older.  I.e. 23 year old has ageGroupCivilState of 20, a 26 year old has ageGroupCivilState of 25 etc.    
-//			ageGroupWork = (age < 70 ? 	age - age % 5 : 70);						//This does similar thing as to ageGroupCivilState up to the age of 70 (people older than 65 are retired)
-
-//		}
-		
+					
 		//Retire person if age equals retirement age (or older for initial population)
 		if(!this.getWorkState().equals(WorkState.Retired)) {
 			if ( (this.getGender().equals(Gender.Male) && (this.getAge() >= 65)) || (this.getGender().equals(Gender.Female) && (this.getAge() >= model.getWemra())))		
@@ -339,16 +320,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		if ( RegressionUtils.event(deathProbability) ) {
 			// update partner's status
 			if (this.getCivilState().equals(CivilState.Married)) {			//if (this.getPartnerId() != null) { 
-//				Person partner = model.getPerson(partnerId);				//Throws illegal argument exception if partnerId doesn't exist
-				if(partner == null) {
-					System.out.println("id ," + this.getId().getId() + ", partnerId ," + partnerId + ", partner ," + partner);
-				}
 				partner.setCivilState(CivilState.Widow);
-//				partner.setPartnerId(null);
 				partner.setPartner(null);
 			}
 			// remove from household (this removes household if no other members are left)
-//			Household hh = model.getHousehold(householdId);
 			household.removePerson(this);
 			household = null;
 			
@@ -365,15 +340,9 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		setAlone(household.getHouseholdMembers().size() == 1);
 		
 		if (!(civilState.equals(CivilState.Married)) && !(alone) && (age >= 24)) {
-			
-			// create new household
-//			Household newHousehold = new Household( (Household.householdIdCounter)++ );
-	        
+				        
 	        resetHousehold(new Household( (Household.householdIdCounter)++));
-	        model.getHouseholds().add(household);
-	        // record household id
-//	        setHouseholdId(newHousehold.getId().getId());		//Now within setHousehold
-	        
+	        model.getHouseholds().add(household);        
 
 		}
 		
@@ -388,9 +357,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 					
 					Person newborn = new Person( (Person.personIdCounter)++ );
 					newborn.setAge(0);			//Why aren't all these person attributes set in the constructor?  TODO: Move them to constructor if possible
-//					newborn.setMotherId(this.getId().getId());
 					newborn.setMother(this);
-//					newborn.setHouseholdId(this.getHouseholdId());
 					newborn.setHousehold(this.household);
 					newborn.setGender( RegressionUtils.event(Gender.class, new double[] {0.49, 0.51}) );		//0.49 for females, 0.51 for males.  As I swapped enum definition of gender around to be consistent with input data, this also needs to be swapped.
 					newborn.setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );  // RMK: education is predetermined at birth
@@ -398,8 +365,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 					newborn.setWorkState(WorkState.Student);
 
 					//Add newborn to the model and add it to the mother's household
-					model.getPersons().add(newborn);
-//					model.getHousehold(householdId).addPerson(newborn);		//Done within setHoushold() now					
+					model.getPersons().add(newborn);					
 				}
 			} catch(Exception e) {
 				Log.error("birth exception " + this.age);
@@ -413,7 +379,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	protected void divorce() {
 
 		if (getPartnerId() != null) {
-//			Person partner = model.getPerson(getPartnerId());
 			if (this.getToDivorce() || partner.getToDivorce()) {				//The first condition used the toDivorce boolean flag directly, but caused an Exception as it can be null.  Instead, if we use this.getToDivorce(), null values are caught by the getter.			
 
 				//# break link to partner
@@ -425,10 +390,8 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 				if (getGender().equals(Gender.Male) && this.getToDivorce()) {
 
 					// create new household
-//					long newHouseholdId = (Household.householdIdCounter)++;
 					resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
 					model.getHouseholds().add(household);
-//					setHouseholdId(newHouseholdId);		// record household id
 				}		
 			}
 		}
@@ -462,11 +425,8 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public double getMarriageScore(Person potentialPartner) {
 				
-//		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
-		this.setPotentialPartner(potentialPartner); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
-//		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
+		this.setPotentialPartner(potentialPartner); 	//Set Person#potentialPartner field, to calculate regression score for potential match between this person and potential partner.
 		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
-//		this.setPotentialPartnerId(-1);		//After regression, set to null, ready for calculating regression with next potential partner candidate.// Now set to -1 as null not allowed now that potentialPartnerId is a primitive.  -1 should indicate a problem as id should be non-negative
 		
 		return marriageScore;
 	}
@@ -479,21 +439,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		if (gender.equals(Gender.Female)) {			//TODO: Female partner should always be called before male partner, given the ordering of the collection of females and males supplied to the matching() method in PersonsModel#marriageMatching().  But do we want to add a check?
 
 			// create new household
-//			long newHouseholdId = (Household.householdIdCounter)++;
 			resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
 			model.getHouseholds().add(household);
-//			setHouseholdId(newHouseholdId);		// record household id
 			
-//			// create new household
-//			Household newHousehold = new Household( (Household.householdIdCounter)++ );
-//			model.getHouseholds().add(newHousehold);
-//
-//			// record household id
-//			setHouseholdId(newHousehold.getId().getId());			//Whenever we setHouseholdId, we automatically remove the person from the previous house and add to the new house!  There used to be an IllegalArgumentException as the person was explicitly removed from the household at the beginning of this marry() method! 
-
 		} else {
-//			setHouseholdId(model.getPerson(getPartnerId()).getHouseholdId());
-//			setHouseholdId(partner.getHouseholdId());
 			resetHousehold(partner.getHousehold());
 		}
 
@@ -504,7 +453,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// this method returns a double in order to allow invocation by the model in the alignment closure
 	public double computeDivorceProb() {
 
-//		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);
 		double divorceProb = Parameters.getRegDivorce().getProbability(this, Person.Regressors.class);
 		if (divorceProb < 0 || divorceProb > 1) {
 			Log.error("divorce prob. not in range [0,1]");
@@ -528,8 +476,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 		if(atRiskOfWork()) {
 			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class, this, Person.RegressionKeys.class);		//Has multiple keys, so use the IObjectSource mechanism (instead of the slow reflection mechanism)
-//			System.out.println("computeWorkProb");
-//			workProb = Parameters.getRegInWork().getProbability(this, Person.Regressors.class);			//Would use reflection in order to work (so slower)
 		}
 		if (workProb < 0 || workProb > 1) {
 			Log.error("work prob. not in range [0,1]");
@@ -661,11 +607,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 
 	public void setHouseholdId(long householdId) {
-//		if (this.householdId != null) 
-//			model.getHousehold(this.householdId).removePerson(this);		//Now done in setHousehold()
-		this.householdId = householdId;
-//		model.getHousehold(householdId).addPerson(this);					//Now done in setHousehold()
-		
+		this.householdId = householdId;		
 	}
 
 //	public Integer getAgeGroupWork() {
@@ -716,7 +658,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 
 	public boolean getToDivorce() {
-//		return (toDivorce != null ? toDivorce : false);
 		return toDivorce;
 	}
 
@@ -725,7 +666,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 
 	public boolean getToCouple() {
-//		return (toCouple != null ? toCouple : false);
 		return toCouple;
 	}
 
@@ -746,43 +686,23 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 	
 	private double getBothWork() {
-//		if(partnerId != null)
-//		{
 			return (getWorkState().equals(WorkState.Employed) && partner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
-//		}
-//		else return 0.;		
 	}
 		
 	private double getNotInWorkAndPotentialPartnerInWork() {
-//		if(potentialPartnerId != null)
-//		{
 			return (!getWorkState().equals(WorkState.Employed) && potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
-//		}
-//		else return 0.;
 	}
 
 	private double getInWorkAndPotentialPartnerNotInWork() {
-//		if(potentialPartnerId != null)
-//		{
 			return (getWorkState().equals(WorkState.Employed) && !potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
-//		}
-//		else return 0.;
 	}
 	
 	private double getInWorkAndPotentialPartnerInWork() {
-//		if(potentialPartnerId != null)
-//		{
 			return (getWorkState().equals(WorkState.Employed) && potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
-//		}
-//		else return 0.;		
 	}
 
 	public double getAgeDiff() {
-//		if(partnerId != null)
-//		{
 			return (double)(age - partner.getAge());	
-//		}
-//		else return 0.; 
 	}
 
 	public double getNbChildren() {

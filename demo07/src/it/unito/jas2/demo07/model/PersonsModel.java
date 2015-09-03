@@ -95,8 +95,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		case Stop:
 			((PersonsCollector)SimulationEngine.getInstance().getManager(PersonsCollector.class.getCanonicalName())).dumpInfo();
 			long timeToComplete = System.currentTimeMillis() - runningTime;
-			log.info("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
-			System.out.println("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
+//			log.info("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
+//			System.out.println("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
 			getEngine().pause();		
 			break;
 		case Timer:
@@ -215,8 +215,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
 		
 		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
-		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
-		System.out.println("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
+//		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
+//		System.out.println("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
 
 	}
 	
@@ -249,15 +249,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	private void addPersonsToHouseholds() {
 		for(Person person : persons)
 		{
-			//Add people to households
-			if(person.getHouseholdId() < 0)		//TODO: Should throw an exception if there are people without householdsId in input database
-			{
-				System.out.println("Person " + person.getId().getId() + " lives in household " + person.getHouseholdId());
-			}
-			else{
-//				this.getHousehold(person.getHouseholdId()).addPerson(person);		//This was originally missing, so households were not containing any households, leading to the original IllegalArgumentExceptions being thrown.
 				person.getHousehold().addPerson(person);
-			}
 		}
 	}
 				
@@ -480,15 +472,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	}
 	
 	public boolean removePerson(Person person) {
-//		System.out.println("removed person " + person.getId().getId());
 		return persons.remove(person);
 	}
 	
 	public boolean removeHousehold(Household household) {
-//		System.out.println("removed household " + household.getId().getId());
-//		if(!household.getHouseholdMembers().isEmpty()) {
-//			System.out.println("Household id " + household.getId().getId() + " is not empty, but is to be removed from model!");
-//		}
 		return households.remove(household);
 	}
 

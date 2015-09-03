@@ -229,7 +229,7 @@ public class LinearRegression implements ILinearRegression {
 				MultiKey coeffMK = (MultiKey) iterator.getKey();	
 				String regressor = ((String) ((MultiKey) coeffMK).getKey(0));							//coeffMK is assumed to only have a single key here
 				double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
-				double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+				Double regCoefficient = (Double) coeffMultiMap.get(coeffMK);
 //				System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
 				sum += covariate * regCoefficient;				
 			}
@@ -314,7 +314,7 @@ public class LinearRegression implements ILinearRegression {
 				if(coeffMKapplicableForIDblSrc == true) {
 					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
 					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumType, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
-					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+					double regCoefficient = (Double) coeffMultiMap.get(coeffMK);
 //					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
 					sum += covariate * regCoefficient;
 				}
@@ -503,7 +503,7 @@ public class LinearRegression implements ILinearRegression {
 				if(coeffMKapplicableForIDblSrc == true) {
 					String regressor = ((String) ((MultiKey) coeffMK).getKey(0));
 					double covariate = iDblSrc.getDoubleValue(Enum.valueOf(enumTypeDouble, regressor));		//Gets value of variable with key that matches the regressor string from object implementing IDoubleSource interface
-					double regCoefficient = (double) coeffMultiMap.get(coeffMK);
+					double regCoefficient = (Double) coeffMultiMap.get(coeffMK);
 //					System.out.println("regressor " + regressor + ", " + "covariate " + covariate + ", " + " regCoefficient " + regCoefficient);
 					sum += covariate * regCoefficient;
 				}
