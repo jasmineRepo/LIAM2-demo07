@@ -94,8 +94,11 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Transient
 	private double workProb;
 	
+//	@Transient
+//	private long potentialPartnerId;
+	
 	@Transient
-	private long potentialPartnerId;
+	private Person potentialPartner;
 
 //	@Transient
 //	private LaggedVariables lagged;
@@ -138,31 +141,31 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {
 		case Ageing:
-			System.out.println("Ageing");
+//			System.out.println("Ageing");
 			ageing();		
 			break;
 		case Death:
-			System.out.println("Death");
+//			System.out.println("Death");
 			death();
 			break;
 		case Birth:
-			System.out.println("Birth");
+//			System.out.println("Birth");
 			birth();
 			break;	
 		case ToCouple:
-			System.out.println("ToCouple");
+//			System.out.println("ToCouple");
 			toCouple();
 			break;	
 		case Divorce:
-			System.out.println("Divorce");
+//			System.out.println("Divorce");
 			divorce();
 			break;	
 		case GetALife:
-			System.out.println("GetALife");
+//			System.out.println("GetALife");
 			getALife();
 			break;			
 		case InEducation:
-			System.out.println("InEducation");
+//			System.out.println("InEducation");
 			inEducation();
 			break;
 		}
@@ -273,7 +276,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	{
 //		if(partnerId != null)
 //		{
-			return model.getPerson(this.getPartnerId()).getAge();	
+			return partner.getAge();	
 //		}
 //		else return 0.;
 				
@@ -283,7 +286,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	{
 //		if(potentialPartnerId != null)
 //		{
-			return model.getPerson(this.getPotentialPartnerId()).getAge();
+			return potentialPartner.getAge();
 //		}
 //		else return 0.;
 	}
@@ -292,7 +295,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	{
 //		if(potentialPartnerId != null)
 //		{
-			return (double)(age - model.getPerson(potentialPartnerId).getAge());
+			return (double)(age - potentialPartner.getAge());
 //		}
 //		else return 0.;
 	}
@@ -359,8 +362,9 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// Setup own household if aged 24 or over and not married (and still living with others)
 	protected void getALife() {
 
-		setAlone(model.getHousehold(householdId).getHouseholdMembers().size() == 1);		//Throws illegal argument exception if householdID doesn't exist
-//		setAlone(household.getHouseholdMembers().size() == 1);
+		//Bug where householdId still in existence after house has been removed...?
+//		setAlone(model.getHousehold(householdId).getHouseholdMembers().size() == 1);		//Throws illegal argument exception if householdID doesn't exist
+		setAlone(household.getHouseholdMembers().size() == 1);
 		
 		if (!(civilState.equals(CivilState.Married)) && !(alone) && (age >= 24)) {
 			
@@ -460,7 +464,8 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public double getMarriageScore(Person potentialPartner) {
 				
-		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
+//		this.setPotentialPartnerId(potentialPartner.getId().getId()); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
+		this.setPotentialPartner(potentialPartner); 	//Set Person#potentialPartnerId field, to calculate regression score for potential match between this person and potential partner.
 //		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class, this, Person.RegressionKeys.class);
 		double marriageScore = Parameters.getRegMarriageFit().getScore(this, Person.Regressors.class);
 //		this.setPotentialPartnerId(-1);		//After regression, set to null, ready for calculating regression with next potential partner candidate.// Now set to -1 as null not allowed now that potentialPartnerId is a primitive.  -1 should indicate a problem as id should be non-negative
@@ -645,13 +650,13 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		this.partnerId = partnerId;
 	}
  	
- 	public long getPotentialPartnerId() {
-		return potentialPartnerId;
-	}
+// 	public long getPotentialPartnerId() {
+//		return potentialPartnerId;
+//	}
 	
- 	public void setPotentialPartnerId(long potentialPartnerId) {
-		this.potentialPartnerId = potentialPartnerId;
-	}
+// 	public void setPotentialPartnerId(long potentialPartnerId) {
+//		this.potentialPartnerId = potentialPartnerId;
+//	}
 
 	public long getHouseholdId() {
 		return householdId;
@@ -745,7 +750,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private double getBothWork() {
 //		if(partnerId != null)
 //		{
-			return (getWorkState().equals(WorkState.Employed) && model.getPerson(partnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
+			return (getWorkState().equals(WorkState.Employed) && partner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
 //		}
 //		else return 0.;		
 	}
@@ -753,7 +758,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private double getNotInWorkAndPotentialPartnerInWork() {
 //		if(potentialPartnerId != null)
 //		{
-			return (!getWorkState().equals(WorkState.Employed) && model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
+			return (!getWorkState().equals(WorkState.Employed) && potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
 //		}
 //		else return 0.;
 	}
@@ -761,7 +766,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private double getInWorkAndPotentialPartnerNotInWork() {
 //		if(potentialPartnerId != null)
 //		{
-			return (getWorkState().equals(WorkState.Employed) && !model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
+			return (getWorkState().equals(WorkState.Employed) && !potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);
 //		}
 //		else return 0.;
 	}
@@ -769,7 +774,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private double getInWorkAndPotentialPartnerInWork() {
 //		if(potentialPartnerId != null)
 //		{
-			return (getWorkState().equals(WorkState.Employed) && model.getPerson(potentialPartnerId).getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
+			return (getWorkState().equals(WorkState.Employed) && potentialPartner.getWorkState().equals(WorkState.Employed) ? 1.0 : 0.0);	
 //		}
 //		else return 0.;		
 	}
@@ -777,7 +782,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public double getAgeDiff() {
 //		if(partnerId != null)
 //		{
-			return (double)(age - model.getPerson(partnerId).getAge());	
+			return (double)(age - partner.getAge());	
 //		}
 //		else return 0.; 
 	}
@@ -785,7 +790,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public double getNbChildren() {
 		if(this.gender == Gender.Female)		//We assume it doesn't matter whether the current partner is also the biological parent of the children in the household.  This is justified, as the divorceRegression is only called by females, who keep their household on divorce and who never live with children whose mother is another female.  TODO:CHECK!!!
 		{										//Another assumption is that, in the divorce regression, when the number of children is taken into account, this is only measuring the sons and daughters under 18 years old, and that sons and daughters of age 18 or over have no influence in whether a couple decide to divorce.
-			return (double) model.getHousehold(getHouseholdId()).getNbChildren();	//Another slower way would be to loop through all people and add up the number of people whose motherId matches this person.
+			return (double) household.getNbChildren();	//Another slower way would be to loop through all people and add up the number of people whose motherId matches this person.
 		}
 		else return 0.;		
 	}
@@ -827,6 +832,14 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		this.household = household;
 		household.addPerson(this);
 		this.householdId = household.getId().getId();
+	}
+
+	public Person getPotentialPartner() {
+		return potentialPartner;
+	}
+
+	public void setPotentialPartner(Person potentialPartner) {
+		this.potentialPartner = potentialPartner;
 	}	
 	
 }

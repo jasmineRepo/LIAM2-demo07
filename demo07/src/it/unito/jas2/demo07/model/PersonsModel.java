@@ -81,15 +81,15 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {	
 		case DivorceAlignment:
-			System.out.println("DivorceAlignment");
+//			System.out.println("DivorceAlignment");
 			divorceAlignment();
 			break;
 		case InWorkAlignment:
-			System.out.println("InWorkAlignment");
+//			System.out.println("InWorkAlignment");
 			inWorkAlignment();
 			break;
 		case MarriageMatching:
-			System.out.println("MarriageMatching");
+//			System.out.println("MarriageMatching");
 			marriageMatching();
 			break;
 		case Stop:
@@ -288,7 +288,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		for(Person person : peopleToRemove)
 		{
 //			System.out.println("Person " + person.getId().getId() + " at household " + person.getHouseholdId() + " removed for erroneous information in input database");
-			this.getHousehold(person.getHouseholdId()).removePerson(person);		//Remove person from household (removes household if person was alone)
+//			this.getHousehold(person.getHouseholdId()).removePerson(person);		//Remove person from household (removes household if person was alone)
+			person.getHousehold().removePerson(person);		//Remove person from household (removes household if person was alone)
 			this.removePerson(person);
 			nRemovedPersons++;
 		}
