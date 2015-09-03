@@ -480,15 +480,15 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	}
 	
 	public boolean removePerson(Person person) {
-		System.out.println("removed person " + person.getId().getId());
+//		System.out.println("removed person " + person.getId().getId());
 		return persons.remove(person);
 	}
 	
 	public boolean removeHousehold(Household household) {
-		System.out.println("removed household " + household.getId().getId());
-		if(!household.getHouseholdMembers().isEmpty()) {
-			System.out.println("Household id " + household.getId().getId() + " is not empty, but is to be removed from model!");
-		}
+//		System.out.println("removed household " + household.getId().getId());
+//		if(!household.getHouseholdMembers().isEmpty()) {
+//			System.out.println("Household id " + household.getId().getId() + " is not empty, but is to be removed from model!");
+//		}
 		return households.remove(household);
 	}
 
