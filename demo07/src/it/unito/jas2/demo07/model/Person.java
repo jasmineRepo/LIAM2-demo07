@@ -360,7 +360,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	protected void divorce() {
 
 		if (getPartnerId() != null) {
-			if (this.getToDivorce() || partner.getToDivorce()) {				//The first condition used the toDivorce boolean flag directly, but caused an Exception as it can be null.  Instead, if we use this.getToDivorce(), null values are caught by the getter.			
+			if (this.getToDivorce() || partner.getToDivorce()) {			
 
 				//# break link to partner
 				setPartnerId(null);
@@ -371,7 +371,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 				if (getGender().equals(Gender.Male) && this.getToDivorce()) {
 
 					// create new household
-					resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
+					resetHousehold(new Household( (Household.householdIdCounter)++ ));
 					model.getHouseholds().add(household);
 				}		
 			}
@@ -391,7 +391,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 	
 	protected void inEducation() {
-		//# unemployed if left education
+		//unemployed if left education
 		if ( workState != null ) 
 			if ( workState.equals(WorkState.Student) ) {
 				if ( 
@@ -420,7 +420,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		if (gender.equals(Gender.Female)) {			//TODO: Female partner should always be called before male partner, given the ordering of the collection of females and males supplied to the matching() method in PersonsModel#marriageMatching().  But do we want to add a check?
 
 			// create new household
-			resetHousehold(new Household( (Household.householdIdCounter)++ ));		//TODO: make a model.createNewHousehold() method so that we can make these 2 lines of code a simple call to the new method.  Shouldn't have to explicitly add the household to the model
+			resetHousehold(new Household( (Household.householdIdCounter)++ ));
 			model.getHouseholds().add(household);
 			
 		} else {
@@ -445,7 +445,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public boolean atRiskOfWork() {
 		return (age > 15 && age < ( gender.equals(Gender.Male) ? 65 : model.getWemra() ) 
 				&& !workState.equals(WorkState.Student) 
-				&& !workState.equals(WorkState.Retired)		//Why check this here?  Shouldn't workState only be retired if age doesn't satisfy first condition?  Perhaps remove first condition for neatness... 
+				&& !workState.equals(WorkState.Retired) 
 				);			
 	}
 	

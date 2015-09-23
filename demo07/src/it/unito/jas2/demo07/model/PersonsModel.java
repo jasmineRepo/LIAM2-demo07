@@ -7,12 +7,10 @@ import it.unito.jas2.demo07.data.filters.FemaleToCoupleFilter;
 import it.unito.jas2.demo07.data.filters.FemaleToDivorce;
 import it.unito.jas2.demo07.data.filters.MaleToCoupleFilter;
 import it.unito.jas2.demo07.experiment.PersonsCollector;
-//import it.unito.jas2.demo07.model.enums.CivilState;
 import it.unito.jas2.demo07.model.enums.Education;
 import it.unito.jas2.demo07.model.enums.Gender;
 import it.unito.jas2.demo07.model.enums.WorkState;
 import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
-//import it.zero11.microsim.data.MultiKeyCoefficientMap;
 import it.zero11.microsim.alignment.probability.AlignmentProbabilityClosure;
 import it.zero11.microsim.alignment.probability.SBDAlignment;
 import it.zero11.microsim.annotation.ModelParameter;
@@ -31,7 +29,6 @@ import it.zero11.microsim.matching.SimpleMatching;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.HashSet;
-//import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.MapIterator;
@@ -62,7 +59,6 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	private int methodId = 0;
 	private int year;
 	
-//	private long runningTime;// = System.currentTimeMillis();		//For measuring real-time to between for model to build and to complete the simulation.
 
 	// ---------------------------------------------------------------------
 	// EventListener
@@ -114,7 +110,6 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@SuppressWarnings("unchecked")
 	@Override
 	public void buildObjects() {
-//		runningTime = System.currentTimeMillis();
 		
 		SimulationEngine.getRnd().setSeed(0);
 		Parameters.loadParameters();
@@ -213,10 +208,6 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		//Schedule model to stop
 		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
 		
-//		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
-//		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
-//		System.out.println("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
-
 	}
 	
 	// ---------------------------------------------------------------------
@@ -278,13 +269,12 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		int nRemovedPersons = 0;
 		for(Person person : peopleToRemove)
 		{
-//			System.out.println("Person " + person.getId().getId() + " at household " + person.getHouseholdId() + " removed for erroneous information in input database");
-//			this.getHousehold(person.getHouseholdId()).removePerson(person);		//Remove person from household (removes household if person was alone)
 			person.getHousehold().removePerson(person);		//Remove person from household (removes household if person was alone)
 			this.removePerson(person);
 			nRemovedPersons++;
 		}
-		System.out.println(nRemovedPersons + " persons removed because of erroneous information in the input database");
+		if(nRemovedPersons > 0)
+			System.out.println(nRemovedPersons + " persons removed because of erroneous information in the input database");
 		
 		int nRemovedHouseholds = 0;
 		
@@ -296,7 +286,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 				nRemovedHouseholds++;
 			}
 		}
-		System.out.println(nRemovedHouseholds + " empty households removed because of erroneous information in the input database");
+		if(nRemovedHouseholds > 0)
+			System.out.println(nRemovedHouseholds + " empty households removed because of erroneous information in the input database");
 	}
 	
 	// ---------------------------------------------------------------------
@@ -330,7 +321,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 
 						@Override
 						public void align(Person agent, double alignedProbability) {
-							boolean divorce = RegressionUtils.event(alignedProbability, SimulationEngine.getRnd());		//XXX: An unnecessary complicated step when considered with the implementation of the SBDAlgorithm, as the alignedProbability is either 1 or 0.  A simpler implementation of the functionality here would simply be to replace the RegressionUtils.event() method by setting the boolean divorce to the true/false depending on whether alignedProbability is 1.0 or 0.0
+//							boolean divorce = RegressionUtils.event(alignedProbability, SimulationEngine.getRnd());		//An unnecessary complicated step when considered with the implementation of the SBDAlgorithm, as the alignedProbability is either 1 or 0.  A simpler implementation of the functionality here would simply be to replace the RegressionUtils.event() method by setting the boolean divorce to the true/false depending on whether alignedProbability is 1.0 or 0.0
+							boolean divorce = (alignedProbability == 1);
 							agent.setToDivorce(divorce);
 
 						}
