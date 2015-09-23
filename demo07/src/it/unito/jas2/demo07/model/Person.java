@@ -100,12 +100,30 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		model = (PersonsModel) SimulationEngine.getInstance().getManager(PersonsModel.class.getCanonicalName());		
 	}
 	
-	//Used when creating new people during the birth process
-	public Person( long idNumber) {
+	public Person(long idNumber) {
 		this();
 		
 		id = new PanelEntityKey();
 		id.setId(idNumber);		 	
+	}
+
+	//Used when creating new people during the birth process
+	public Person(Person mother) {
+		this();
+	
+		id = new PanelEntityKey();
+		id.setId((Person.personIdCounter)++);
+		setAge(0);
+		setMother(mother);
+		setHousehold(mother.getHousehold());
+		setGender( RegressionUtils.event(Gender.class, new double[] {0.49, 0.51}) );		//0.49 for females, 0.51 for males.  As I swapped enum definition of gender around to be consistent with input data, this also needs to be swapped.
+		setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );  // RMK: education is predetermined at birth
+		setCivilState(CivilState.Single);
+		setWorkState(WorkState.Student);
+
+		//Add person to the model's list of persons
+		model.getPersons().add(this);							
+		
 	}
 	
 
@@ -325,18 +343,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 			try{
 				birthProbability = ((Number) Parameters.getpBirth().getValue(this.age, SimulationEngine.getInstance().getTime())).doubleValue();
 				if ( RegressionUtils.event(birthProbability) ) {
-					
-					Person newborn = new Person( (Person.personIdCounter)++ );
-					newborn.setAge(0);			//Why aren't all these person attributes set in the constructor?  TODO: Move them to constructor if possible
-					newborn.setMother(this);
-					newborn.setHousehold(this.household);
-					newborn.setGender( RegressionUtils.event(Gender.class, new double[] {0.49, 0.51}) );		//0.49 for females, 0.51 for males.  As I swapped enum definition of gender around to be consistent with input data, this also needs to be swapped.
-					newborn.setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );  // RMK: education is predetermined at birth
-					newborn.setCivilState(CivilState.Single);
-					newborn.setWorkState(WorkState.Student);
 
-					//Add newborn to the model and add it to the mother's household
-					model.getPersons().add(newborn);					
+					@SuppressWarnings("unused")
+					Person newborn = new Person(this);
+					
 				}
 			} catch(Exception e) {
 				Log.error("birth exception " + this.age);
@@ -685,6 +695,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	
 	public void setHousehold(Household household) {
 		this.household = household;
+		household.addPerson(this);
 		this.householdId = household.getId().getId();
 	}
 
