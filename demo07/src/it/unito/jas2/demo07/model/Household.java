@@ -126,5 +126,4 @@ public class Household implements EventListener {
 	public List<Person> getHouseholdMembers() {
 		return householdMembers;
 	}
-	
 }
