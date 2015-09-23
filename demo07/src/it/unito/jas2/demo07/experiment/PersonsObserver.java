@@ -121,10 +121,6 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(eduPlotter, CommonEventType.Update);
 		    getEngine().getEventList().schedule(observerSchedule, model.getStartYear(), displayFrequency);
 	
-	//		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Update), 0, displayFrequency);	
-	//		getEngine().getEventList().schedule(new SingleTargetEvent(agePlotter, CommonEventType.Update), 0, displayFrequency);
-	//		getEngine().getEventList().schedule(new SingleTargetEvent(workPlotter, CommonEventType.Update), 0, displayFrequency);
-	//		getEngine().getEventList().schedule(new SingleTargetEvent(eduPlotter, CommonEventType.Update), 0, displayFrequency);		
 		}							
 	}
 
