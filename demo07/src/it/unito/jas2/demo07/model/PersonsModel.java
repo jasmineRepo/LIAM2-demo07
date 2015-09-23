@@ -137,13 +137,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		addPersonsToHouseholds();				//Add the population to the households.
 		cleanInitialPopulation();						//This ensures that marriage partnerships can only occur between reciprocal partners who live in the same household.
 			
-		elapsedTime = System.currentTimeMillis();
 	}
 	
 	@Override
 	public void buildSchedule() {
-		
-		year = startYear;
 		
 		EventGroup modelSchedule = new EventGroup();		
 		// 1: Aging
@@ -208,6 +205,9 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		//Schedule model to stop
 		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
 		
+		year = startYear;
+		elapsedTime = System.currentTimeMillis();
+		
 	}
 	
 	// ---------------------------------------------------------------------
@@ -218,7 +218,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		for(Person person : persons)
 		{
 			// initialize vbles which are not in the input dbase
-			// # education level
+			
+			//education level
 			person.setEducationlevel( RegressionUtils.event(Education.class, new double[] {0.25, 0.39, 0.36}) );		//Sets educationlevel of initial population randomly. 
 			person.inEducation();		//Changes the workstate of students over certain age to NotEmployed
 			
@@ -250,16 +251,16 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		{
 			if(thisPerson.getPartnerId() != null)
 			{
-				Person otherPerson = getPerson( thisPerson.getPartnerId() );
+				Person otherPerson = thisPerson.getPartner();
 
 				// 1) Check for persons with non-reciprocal partners.
-				if ( (thisPerson.getId().getId()).longValue() != (otherPerson.getPartnerId()).longValue() ) {			//This can handle love triangles (or longer loops) and unrequited marriages (i.e. one person is married to someone, who is already married to someone else in a normal arrangement).  As we are not yet removing persons, we do not create IllegalArgument Exceptions, which would happen when removed people are referenced by their partners.
+				if ( thisPerson != otherPerson.getPartner() ) {			//This can handle love triangles (or longer loops) and unrequited marriages (i.e. one person is married to someone, who is already married to someone else in a normal arrangement).  As we are not yet removing persons, we do not create IllegalArgument Exceptions, which would happen when removed people are referenced by their partners.
 //					System.out.println("Person " + thisPerson.getId().getId() + " has PartnerID " + thisPerson.getPartnerId() + " and Person " + otherPerson.getId().getId() + " has PartnerID " + otherPerson.getPartnerId() + " so we remove Person " + thisPerson.getId().getId() + " for having a  non-reciprocal partner");
 					peopleToRemove.add(thisPerson);
 				}
 				
 				// 2) remove married persons not living in the same household
-				else if ( thisPerson.getHouseholdId() != otherPerson.getHouseholdId() ) {
+				else if ( thisPerson.getHousehold() != otherPerson.getHousehold() ) {
 //					System.out.println("Person " + thisPerson.getId().getId() + " has HouseholdID " + thisPerson.getHouseholdId() + " whereas their partner " + thisPerson.getPartnerId() + " who should have ID " + otherPerson.getId().getId() + " has householdID " + otherPerson.getHouseholdId());
 					peopleToRemove.add(thisPerson);
 				}				
@@ -398,9 +399,9 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			}, 
 			new MatchingClosure<Person>() {				
 				@Override
-				public void match(Person female, Person male) {		//The SimpleMatching.getInstance().matching() assumes the first collection in the argument (females in this case) is also the collection that the first argument of the MatchingClosure.match() is sampled from.  This should mean that t1 is female and t2 male.
+				public void match(Person female, Person male) {		//The SimpleMatching.getInstance().matching() assumes the first collection in the argument (females in this case) is also the collection that the first argument of the MatchingClosure.match() is sampled from.
 					
-					female.marry(male);				//t1 should be female and t2 male - see comment in line above.
+					female.marry(male);				
 					male.marry(female);
 				}
 			}
@@ -410,10 +411,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	
 
 	private void printElapsedTime() {
-		// TODO: print the method name
-		// TODO: integrate in schedule
 		methodId++;
-//		int year = startYear + (int)((methodId-1) / 9);
 		long timeDiff = System.currentTimeMillis() - elapsedTime;
 		System.out.println("Year " + year + " Method "+ (((methodId-1) % 9)+1) +" completed in " + timeDiff + "ms.");
 		elapsedTime = System.currentTimeMillis();
@@ -476,12 +474,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 
 	public void setPrintElapsedTime(Boolean printElapsedTime) {
 		this.printElapsedTime = printElapsedTime;
-	}
-
-//	public int getYear() {
-//		return year;
-//	}
-	
+	}	
 
 	
 }
