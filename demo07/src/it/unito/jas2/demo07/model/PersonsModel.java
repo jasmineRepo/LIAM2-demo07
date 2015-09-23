@@ -119,23 +119,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		persons = (List<Person>) DatabaseUtils.loadTable(Person.class);
 		System.out.println("Initial population loaded from input database.");
 		
-//		//Linked List implementation /////////////////////////////////////////////////////////////////////////////////
-//		List<Person> initialPopulation = (List<Person>) DatabaseUtils.loadTable(Person.class);        //RHS returns an ArrayList, not a LinkedList, so need to copy to new LinkedList below
-//		List<Household> initialHouseholds = (List<Household>) DatabaseUtils.loadTable(Household.class);        //RHS returns an ArrayList, not a LinkedList, so need to copy to new LinkedList below
-////        Collections.shuffle(initialPopulation);
-//        System.out.println("Initial population loaded from input database.");
-//        persons = new LinkedList<Person>();
-//        households = new LinkedList<Household>();
-//        
-//        // create LinkedList type to allow faster removal of randomly scattered entries (in population alignment module)
-//        for (int i=0; i<initialPopulation.size(); i++) persons.add(initialPopulation.get(i));						  // copy desired sample size to LinkedList
-//        for (int i=0; i<initialHouseholds.size(); i++) households.add(initialHouseholds.get(i));						  // copy desired sample size to LinkedList
-//        initialPopulation = null;
-//        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+		//Initialisation and Cleanup
 		initializeNonDatabaseAttributes();		//Initialize attributes that do not appear in the input database
 		addPersonsToHouseholds();				//Add the population to the households.
-		cleanInitialPopulation();						//This ensures that marriage partnerships can only occur between reciprocal partners who live in the same household.
+		cleanInitialPopulation();				//This ensures that marriage partnerships can only occur between reciprocal partners who live in the same household.
 			
 	}
 	

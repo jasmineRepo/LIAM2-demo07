@@ -9,7 +9,6 @@ import it.unito.jas2.demo07.model.enums.Education;
 import it.unito.jas2.demo07.model.enums.Gender;
 import it.unito.jas2.demo07.model.enums.WorkState;
 import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
-//import it.zero11.microsim.data.MultiKeyCoefficientMap;
 import it.zero11.microsim.data.db.PanelEntityKey;
 import it.zero11.microsim.engine.SimulationEngine;
 import it.zero11.microsim.event.EventListener;

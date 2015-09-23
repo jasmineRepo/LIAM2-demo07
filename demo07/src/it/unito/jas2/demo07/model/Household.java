@@ -25,9 +25,9 @@ public class Household implements EventListener {
 	@Id
 	private PanelEntityKey id;
 
-	private Integer nbPersons = 0;
+	private Integer nbPersons = 0;			//For Database records
 	
-	private Integer nbChildren = 0;
+	private Integer nbChildren = 0;			//For Database records
 	
 	@Transient
 	private List<Person> householdMembers;
@@ -79,24 +79,6 @@ public class Household implements EventListener {
 	// own methods
 	// ---------------------------------------------------------------------
 
-
-	
-	// ---------------------------------------------------------------------------
-	// access methods
-	// ---------------------------------------------------------------------------
-
-	public PanelEntityKey getId() {
-		return id;
-	}
-	
-	public void setId (PanelEntityKey id) {
-		this.id = id;
-	}
-
-	public List<Person> getHouseholdMembers() {
-		return householdMembers;
-	}
-
 	public boolean addPerson(Person person) {		
 		return householdMembers.add(person);
 	}
@@ -126,6 +108,23 @@ public class Household implements EventListener {
 		} else {
 			return personRemoveSuccessful;
 		}
+	}
+
+	
+	// ---------------------------------------------------------------------------
+	// access methods
+	// ---------------------------------------------------------------------------
+
+	public PanelEntityKey getId() {
+		return id;
+	}
+	
+	public void setId (PanelEntityKey id) {
+		this.id = id;
+	}
+
+	public List<Person> getHouseholdMembers() {
+		return householdMembers;
 	}
 	
 }
