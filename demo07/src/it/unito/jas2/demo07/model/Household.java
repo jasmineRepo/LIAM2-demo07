@@ -117,9 +117,10 @@ public class Household implements EventListener {
 	public boolean removePerson(Person person) {
 
 		boolean personRemoveSuccessful = householdMembers.remove(person);
-		boolean removeHouseholdSuccessful = false;
+		
 		if (householdMembers.isEmpty())
 		{
+			boolean removeHouseholdSuccessful = false;
 			removeHouseholdSuccessful = model.removeHousehold(this);
 			return (personRemoveSuccessful && removeHouseholdSuccessful);
 		} else {

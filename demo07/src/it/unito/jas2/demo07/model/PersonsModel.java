@@ -31,7 +31,7 @@ import it.zero11.microsim.matching.SimpleMatching;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
+//import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.MapIterator;
@@ -62,7 +62,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	private int methodId = 0;
 	private int year;
 	
-	private long runningTime;// = System.currentTimeMillis();		//For measuring real-time to between for model to build and to complete the simulation.
+//	private long runningTime;// = System.currentTimeMillis();		//For measuring real-time to between for model to build and to complete the simulation.
 
 	// ---------------------------------------------------------------------
 	// EventListener
@@ -94,9 +94,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			break;
 		case Stop:
 			((PersonsCollector)SimulationEngine.getInstance().getManager(PersonsCollector.class.getCanonicalName())).dumpInfo();
-			long timeToComplete = System.currentTimeMillis() - runningTime;
-//			log.info("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
-//			System.out.println("Model completed.  Time taken to run simulation is " + timeToComplete + "ms.");
+//			log.info("Model completed.");
+			System.out.println("Model completed.");
 			getEngine().pause();		
 			break;
 		case Timer:
@@ -115,7 +114,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@SuppressWarnings("unchecked")
 	@Override
 	public void buildObjects() {
-		runningTime = System.currentTimeMillis();
+//		runningTime = System.currentTimeMillis();
 		
 		SimulationEngine.getRnd().setSeed(0);
 		Parameters.loadParameters();
@@ -214,7 +213,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		//Schedule model to stop
 		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
 		
-		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
+//		long timeToCompleteBuild = System.currentTimeMillis() - runningTime;
 //		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
 //		System.out.println("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
 

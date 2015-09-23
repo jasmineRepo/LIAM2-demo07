@@ -40,7 +40,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 	
-	@Column(name="workstate")			//TODO: Can we remove this column naming?
+	@Column(name="workstate")
 	@Enumerated(EnumType.STRING)
 	private WorkState workState;
 
@@ -71,14 +71,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Column(name="alone")
 	private Boolean alone;
 
-//	@Transient
-//	@Column(name="age_group_work")		//Why define the column heading for a Transient field (the same in the field below)?
-//	private Integer ageGroupWork;		//TODO: remove if not being used
-//
-//	@Transient
-//	@Column(name="age_group_civilstate")	//Why define the column heading for a Transient field?
-//	private Integer ageGroupCivilState;		//TODO: remove if not being used
-
 	@Enumerated(EnumType.STRING)
 	private Education educationlevel;
 
@@ -94,15 +86,9 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	@Transient
 	private double workProb;
 	
-//	@Transient
-//	private long potentialPartnerId;
-	
 	@Transient
 	private Person potentialPartner;
 
-//	@Transient
-//	private LaggedVariables lagged;
-	
 	
 	// ---------------------------------------------------------------------
 	// Constructor
@@ -272,27 +258,14 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		}
 	}
 	
-	public double getPartnerAge()
-	{
-			return partner.getAge();					
-	}
 
-	public double getPotentialPartnerAge()
-	{
-			return potentialPartner.getAge();
-	}
-	
-	public double getPotentialAgeDiff()
-	{
-			return (double)(age - potentialPartner.getAge());
-	}
 	// ---------------------------------------------------------------------
 	// own methods
 	// ---------------------------------------------------------------------
 
 	protected void ageing() {
-//		if (age<100) {			//Why have this 'artificial' age restriction?  The probability of death is 1.0 for people aged 99 and over, so people should be removed from the simulation anyway when they reach 100, so why worry about putting in this condition?
-			age += 1;
+		
+		age++;
 					
 		//Retire person if age equals retirement age (or older for initial population)
 		if(!this.getWorkState().equals(WorkState.Retired)) {
@@ -301,8 +274,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 				setWorkState(WorkState.Retired);
 			}
 		}
-
-//		lagged.push("workState", workState);		//Records the workState once per year at the moment when the ageing() method is called.
 		
 		if (civilState.equals(CivilState.Married))
 		{
@@ -319,11 +290,11 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		
 		if ( RegressionUtils.event(deathProbability) ) {
 			// update partner's status
-			if (this.getCivilState().equals(CivilState.Married)) {			//if (this.getPartnerId() != null) { 
+			if (this.getCivilState().equals(CivilState.Married)) { 
 				partner.setCivilState(CivilState.Widow);
 				partner.setPartner(null);
 			}
-			// remove from household (this removes household if no other members are left)
+			// remove person from household (this removes household from model if it no longer has any residents)
 			household.removePerson(this);
 			household = null;
 			
@@ -554,10 +525,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		else return 0;
 	}
 
-//	public LaggedVariables getLagged() {
-//		return lagged;
-//	}
-
 	public void setWorkState(WorkState workState) {
 		this.workState = workState;
 	}
@@ -594,14 +561,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		this.partnerId = partnerId;
 	}
  	
-// 	public long getPotentialPartnerId() {
-//		return potentialPartnerId;
-//	}
-	
-// 	public void setPotentialPartnerId(long potentialPartnerId) {
-//		this.potentialPartnerId = potentialPartnerId;
-//	}
-
 	public long getHouseholdId() {
 		return householdId;
 	}
@@ -609,22 +568,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void setHouseholdId(long householdId) {
 		this.householdId = householdId;		
 	}
-
-//	public Integer getAgeGroupWork() {
-//		return ageGroupWork;
-//	}
-//
-//	public void setAgeGroupWork(Integer ageGroupWork) {
-//		this.ageGroupWork = ageGroupWork;
-//	}
-//
-//	public Integer getAgeGroupCivilState() {
-//		return ageGroupCivilState;
-//	}
-//
-//	public void setAgeGroupCivilState(Integer ageGroupCivilState) {
-//		this.ageGroupCivilState = ageGroupCivilState;
-//	}
 
 	public Education getEducationlevel() {
 		return educationlevel;
@@ -758,6 +701,21 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 	public void setPotentialPartner(Person potentialPartner) {
 		this.potentialPartner = potentialPartner;
-	}	
+	}
+	
+	public double getPartnerAge()
+	{
+			return partner.getAge();					
+	}
+
+	public double getPotentialPartnerAge()
+	{
+			return potentialPartner.getAge();
+	}
+	
+	public double getPotentialAgeDiff()
+	{
+			return (double)(age - potentialPartner.getAge());
+	}
 	
 }
