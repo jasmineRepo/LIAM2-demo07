@@ -44,7 +44,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	private Double startYear = 2002.0;
 
 	@ModelParameter(description="Simulation ends at year [valid range 2003-2061]")
-	private Double endYear = 2061.0;
+	private Double endYear = 2060.0;
 	
 	@ModelParameter(description="Retirement age for women")
 	private Integer wemra = 61;
@@ -91,8 +91,8 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			break;
 		case Stop:
 			((PersonsCollector)SimulationEngine.getInstance().getManager(PersonsCollector.class.getCanonicalName())).dumpInfo();
-//			log.info("Model completed.");
-			System.out.println("Model completed.");
+			log.info("Model completed.");
+//			System.out.println("Model completed.");
 			getEngine().pause();		
 			break;
 		case Timer:
