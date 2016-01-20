@@ -9,6 +9,7 @@ import microsim.engine.SimulationManager;
 import microsim.event.CommonEventType;
 import microsim.event.EventGroup;
 import microsim.event.EventListener;
+import microsim.event.Order;
 import microsim.gui.GuiUtils;
 import microsim.gui.plot.TimeSeriesSimulationPlotter;
 import microsim.statistics.CrossSection;
@@ -119,7 +120,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(agePlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(workPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(eduPlotter, CommonEventType.Update);
-		    getEngine().getEventList().schedule(observerSchedule, model.getStartYear(), displayFrequency);
+		    getEngine().getEventList().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 	
 		}							
 	}

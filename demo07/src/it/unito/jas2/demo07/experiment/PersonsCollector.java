@@ -6,7 +6,9 @@ import microsim.data.db.DatabaseUtils;
 import microsim.engine.AbstractSimulationCollectorManager;
 import microsim.engine.SimulationManager;
 import microsim.event.EventListener;
+import microsim.event.Order;
 import microsim.event.SingleTargetEvent;
+
 import org.apache.log4j.Logger;
 
 public class PersonsCollector extends AbstractSimulationCollectorManager implements EventListener {
@@ -65,7 +67,7 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 		if(persistData) {
 			
 			//Schedule periodic dumps of data to database during the simulation
-		    getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, numTimestepsBetweenDatabaseDumps);
+		    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, Order.AFTER_ALL.getOrdering()-1, numTimestepsBetweenDatabaseDumps);
 		    
 		}
 	}

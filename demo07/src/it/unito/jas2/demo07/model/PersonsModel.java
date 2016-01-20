@@ -20,6 +20,7 @@ import microsim.engine.AbstractSimulationManager;
 import microsim.engine.SimulationEngine;
 import microsim.event.EventGroup;
 import microsim.event.EventListener;
+import microsim.event.Order;
 import microsim.event.SingleTargetEvent;
 import microsim.matching.MatchingClosure;
 import microsim.matching.MatchingScoreClosure;
@@ -187,10 +188,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		}
 	
 		modelSchedule.addEvent(this, Processes.UpdateYear);
-		getEngine().getEventList().schedule(modelSchedule, startYear, 1);
+		getEngine().getEventList().scheduleRepeat(modelSchedule, startYear, 0, 1.);
 		
 		//Schedule model to stop
-		getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.Stop), endYear);
+		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
 		
 		year = startYear;
 		elapsedTime = System.currentTimeMillis();
