@@ -1,18 +1,18 @@
 package it.unito.jas2.demo07.model;
 
-import it.unito.jas2.demo07.algorithms.IObjectSource;
 import it.unito.jas2.demo07.algorithms.MapAgeSearch;
-import it.unito.jas2.demo07.algorithms.RegressionUtils;
 import it.unito.jas2.demo07.data.Parameters;
 import it.unito.jas2.demo07.model.enums.CivilState;
 import it.unito.jas2.demo07.model.enums.Education;
 import it.unito.jas2.demo07.model.enums.Gender;
 import it.unito.jas2.demo07.model.enums.WorkState;
-import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
-import it.zero11.microsim.data.db.PanelEntityKey;
-import it.zero11.microsim.engine.SimulationEngine;
-import it.zero11.microsim.event.EventListener;
-import it.zero11.microsim.statistics.IDoubleSource;
+import microsim.data.MultiKeyCoefficientMap;
+import microsim.data.db.PanelEntityKey;
+import microsim.engine.SimulationEngine;
+import microsim.event.EventListener;
+import microsim.statistics.IDoubleSource;
+import microsim.statistics.IObjectSource;
+import microsim.statistics.regression.RegressionUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

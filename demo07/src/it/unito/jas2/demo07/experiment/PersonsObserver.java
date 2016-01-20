@@ -2,17 +2,17 @@ package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
-import it.zero11.microsim.annotation.ModelParameter;
-import it.zero11.microsim.engine.AbstractSimulationObserverManager;
-import it.zero11.microsim.engine.SimulationCollectorManager;
-import it.zero11.microsim.engine.SimulationManager;
-import it.zero11.microsim.event.CommonEventType;
-import it.zero11.microsim.event.EventGroup;
-import it.zero11.microsim.event.EventListener;
-import it.zero11.microsim.gui.GuiUtils;
-import it.zero11.microsim.gui.plot.TimeSeriesSimulationPlotter;
-import it.zero11.microsim.statistics.CrossSection;
-import it.zero11.microsim.statistics.functions.MeanArrayFunction;
+import microsim.annotation.ModelParameter;
+import microsim.engine.AbstractSimulationObserverManager;
+import microsim.engine.SimulationCollectorManager;
+import microsim.engine.SimulationManager;
+import microsim.event.CommonEventType;
+import microsim.event.EventGroup;
+import microsim.event.EventListener;
+import microsim.gui.GuiUtils;
+import microsim.gui.plot.TimeSeriesSimulationPlotter;
+import microsim.statistics.CrossSection;
+import microsim.statistics.functions.MeanArrayFunction;
 
 public class PersonsObserver extends AbstractSimulationObserverManager implements EventListener{
 

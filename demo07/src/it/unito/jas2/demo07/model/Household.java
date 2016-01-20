@@ -1,8 +1,8 @@
 package it.unito.jas2.demo07.model;
 
-import it.zero11.microsim.data.db.PanelEntityKey;
-import it.zero11.microsim.engine.SimulationEngine;
-import it.zero11.microsim.event.EventListener;
+import microsim.data.db.PanelEntityKey;
+import microsim.engine.SimulationEngine;
+import microsim.event.EventListener;
 
 import java.util.ArrayList;
 import java.util.List;

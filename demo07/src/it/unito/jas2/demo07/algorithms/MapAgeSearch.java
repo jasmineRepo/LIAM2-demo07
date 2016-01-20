@@ -1,8 +1,7 @@
 package it.unito.jas2.demo07.algorithms;
 
 import it.unito.jas2.demo07.model.enums.Gender;			//XXX: This cannot be a candidate for the JAS libraries if it relies on a model specific definition of Gender!
-//import it.zero11.microsim.data.MultiKeyCoefficientMap;
-import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
+import microsim.data.MultiKeyCoefficientMap;
 
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.keyvalue.MultiKey;

@@ -1,11 +1,10 @@
 package it.unito.jas2.demo07.data;
 
-//import it.zero11.microsim.data.MultiKeyCoefficientMap;
-import it.unito.jas2.demo07.algorithms.MultiKeyCoefficientMap;
-//import it.zero11.microsim.data.excel.ExcelAssistant;
-import it.unito.jas2.demo07.algorithms.ExcelAssistant;
-import it.unito.jas2.demo07.algorithms.LinearRegression;
-import it.unito.jas2.demo07.algorithms.LogitRegression;
+import microsim.data.MultiKeyCoefficientMap;
+import microsim.data.excel.ExcelAssistant;
+import microsim.statistics.regression.LinearRegression;
+import microsim.statistics.regression.LogitRegression;
+
 
 
 public class Parameters {

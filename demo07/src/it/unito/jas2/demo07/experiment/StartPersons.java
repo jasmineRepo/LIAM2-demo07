@@ -1,9 +1,9 @@
 package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.PersonsModel;
-import it.zero11.microsim.engine.ExperimentBuilder;
-import it.zero11.microsim.engine.SimulationEngine;
-import it.zero11.microsim.gui.shell.MicrosimShell;
+import microsim.engine.ExperimentBuilder;
+import microsim.engine.SimulationEngine;
+import microsim.gui.shell.MicrosimShell;
 
 public class StartPersons implements ExperimentBuilder {
 
