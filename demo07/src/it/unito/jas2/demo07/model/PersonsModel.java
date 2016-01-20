@@ -41,10 +41,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	private static Logger log = Logger.getLogger(PersonsModel.class);
 	
 	@ModelParameter(description="Simulation first year (valid range 2002-2060)")
-	private Double startYear = 2002.0;
+	private Integer startYear = 2002;
 
-	@ModelParameter(description="Simulation ends at year [valid range 2003-2061]")
-	private Double endYear = 2060.0;
+	@ModelParameter(description="Simulation ends at year [valid range 2002-2060]")
+	private Integer endYear = 2060;
 	
 	@ModelParameter(description="Retirement age for women")
 	private Integer wemra = 61;
@@ -112,6 +112,12 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	@Override
 	public void buildObjects() {
 		
+		if(startYear < 2002 || startYear > 2060) {
+			throw new RuntimeException("startYear " + startYear + " set to a value outside the valid range : 2002 to 2060.  Pick a valid start year!");
+		}
+		if(endYear < 2002 || endYear > 2060) {
+			throw new RuntimeException("endYear " + endYear + " set to a value outside the valid range : 2002 to 2060.  Pick a valid end year!");
+		}
 		SimulationEngine.getRnd().setSeed(0);
 		Parameters.loadParameters();
 		System.out.println("Parameters loaded.");
@@ -193,7 +199,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		//Schedule model to stop
 		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
 		
-		year = startYear.intValue();
+		year = startYear;
 		elapsedTime = System.currentTimeMillis();
 		
 	}
@@ -409,7 +415,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	// Access methods
 	// ---------------------------------------------------------------------
 	
-	public Double getStartYear() {
+	public Integer getStartYear() {
 		return startYear;
 	}
 
@@ -421,7 +427,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		return households;
 	}
 	
-	public Double getEndYear() {
+	public Integer getEndYear() {
 		return endYear;
 	}
 
@@ -462,6 +468,18 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 
 	public void setPrintElapsedTime(Boolean printElapsedTime) {
 		this.printElapsedTime = printElapsedTime;
+	}
+
+	public void setStartYear(Integer startYear) {
+		this.startYear = startYear;
+	}
+
+	public void setEndYear(Integer endYear) {
+		this.endYear = endYear;
+	}
+
+	public void setWemra(Integer wemra) {
+		this.wemra = wemra;
 	}	
 
 	
