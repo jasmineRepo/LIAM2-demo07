@@ -2,7 +2,7 @@ package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.PersonsModel;
 import microsim.annotation.ModelParameter;
-import microsim.data.db.DatabaseUtils;
+import microsim.data.DataExport;
 import microsim.engine.AbstractSimulationCollectorManager;
 import microsim.engine.SimulationManager;
 import microsim.event.EventListener;
@@ -16,15 +16,21 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	private static Logger log = Logger.getLogger(PersonsCollector.class);
 	
 	@ModelParameter(description="Toggle to persist data to database")
-	private Boolean persistData = false;
+	private Boolean exportToDatabase = false;
+	
+	@ModelParameter(description="Toggle to export data to CSV files")
+	private Boolean exportToCSV = true;
 	
 	@ModelParameter(description="number of timesteps to wait before persisting database")
-	private Integer databaseDumpStartsAfterTimestep = 10;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
+	private Integer databaseDumpStartsAfterTimestep = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 
 	@ModelParameter(description="number of timesteps between database dumps")
-	private Integer numTimestepsBetweenDatabaseDumps = 10;
+	private Integer numTimestepsBetweenDatabaseDumps = 1;
 	
 	final PersonsModel model = (PersonsModel) getManager();
+	
+	DataExport personsData;
+	DataExport householdsData;
 	
 	public PersonsCollector(SimulationManager manager) {
 		super(manager);		
@@ -43,12 +49,8 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 		switch ((Processes) type) {
 
 		case DumpInfo:
-			try {
-				DatabaseUtils.snap(((PersonsModel) getManager()).getPersons());
-				DatabaseUtils.snap(((PersonsModel) getManager()).getHouseholds());
-			} catch (Exception e) {
-				log.error(e.getMessage());				
-			}
+			personsData.export();
+			householdsData.export();
 			break;	
 		}
 	}
@@ -59,28 +61,19 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	
 	@Override
 	public void buildObjects() {
-			
+		personsData = new DataExport(((PersonsModel) getManager()).getPersons(), exportToDatabase, exportToCSV);
+		householdsData = new DataExport(((PersonsModel) getManager()).getHouseholds(), exportToDatabase, exportToCSV);
+
 	}
 	
 	@Override
 	public void buildSchedule() {	
-		if(persistData) {
 			
-			//Schedule periodic dumps of data to database during the simulation
-		    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, Order.AFTER_ALL.getOrdering()-1, numTimestepsBetweenDatabaseDumps);
+		//Schedule periodic dumps of data to database and/or .csv files during the simulation
+	    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, Order.AFTER_ALL.getOrdering()-1, numTimestepsBetweenDatabaseDumps);
 		    
-		}
 	}
-	
-	//This is so that Model class can call at end of simulation just before stopping to dump the database
-	public void dumpInfo() {
-		try {
-			DatabaseUtils.snap(((PersonsModel) getManager()).getPersons());
-			DatabaseUtils.snap(((PersonsModel) getManager()).getHouseholds());
-		} catch (Exception e) {
-			log.error(e.getMessage());				
-		}
-	}
+
 	
 	// ---------------------------------------------------------------------
 	// getters and setters
@@ -104,12 +97,20 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 		this.numTimestepsBetweenDatabaseDumps = numTimestepsBetweenDatabaseDumps;
 	}
 
-	public Boolean getPersistData() {
-		return persistData;
+	public Boolean getExportToDatabase() {
+		return exportToDatabase;
 	}
 
-	public void setPersistData(Boolean persistData) {
-		this.persistData = persistData;
+	public void setExportToDatabase(Boolean exportToDatabase) {
+		this.exportToDatabase = exportToDatabase;
+	}
+
+	public Boolean getExportToCSV() {
+		return exportToCSV;
+	}
+
+	public void setExportToCSV(Boolean exportToCSV) {
+		this.exportToCSV = exportToCSV;
 	}
 	
 }

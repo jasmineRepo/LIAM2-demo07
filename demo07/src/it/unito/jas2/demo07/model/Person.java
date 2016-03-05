@@ -26,6 +26,7 @@ import org.jfree.util.Log;
 @Entity
 public class Person implements Comparable<Person>, EventListener, IDoubleSource, IObjectSource
 {
+	@Transient
 	public static long personIdCounter = 100000;
 	
 	@Transient

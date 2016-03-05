@@ -90,7 +90,6 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			marriageMatching();
 			break;
 		case Stop:
-			((PersonsCollector)SimulationEngine.getInstance().getManager(PersonsCollector.class.getCanonicalName())).dumpInfo();
 			log.info("Model completed.");
 //			System.out.println("Model completed.");
 			getEngine().pause();		
