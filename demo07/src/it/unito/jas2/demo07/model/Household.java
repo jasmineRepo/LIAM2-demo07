@@ -23,7 +23,7 @@ public class Household implements EventListener {
 	private PersonsModel model;
 	
 	@Id
-	private PanelEntityKey id;
+	private PanelEntityKey key;
 
 	private Integer nbPersons = 0;			//For Database records
 	
@@ -50,8 +50,8 @@ public class Household implements EventListener {
 	public Household( long idNumber ) {
 		this();
 
-		id = new PanelEntityKey();
-		id.setId(idNumber);     
+		key = new PanelEntityKey(idNumber);
+		
 	}
 	
 	
@@ -115,12 +115,12 @@ public class Household implements EventListener {
 	// access methods
 	// ---------------------------------------------------------------------------
 
-	public PanelEntityKey getId() {
-		return id;
+	public PanelEntityKey getKey() {
+		return key;
 	}
 	
-	public void setId (PanelEntityKey id) {
-		this.id = id;
+	public void setKey (PanelEntityKey key) {
+		this.key = key;
 	}
 
 	public List<Person> getHouseholdMembers() {

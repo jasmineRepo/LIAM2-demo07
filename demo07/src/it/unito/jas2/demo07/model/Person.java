@@ -33,7 +33,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	private PersonsModel model;
 	
 	@Id
-	private PanelEntityKey id;
+	private PanelEntityKey key;
 		
 	private int age;
 	
@@ -103,16 +103,15 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public Person(long idNumber) {
 		this();
 		
-		id = new PanelEntityKey();
-		id.setId(idNumber);		 	
+		key = new PanelEntityKey(idNumber);
+
 	}
 
 	//Used when creating new people during the birth process
 	public Person(Person mother) {
 		this();
 	
-		id = new PanelEntityKey();
-		id.setId((Person.personIdCounter)++);
+		key = new PanelEntityKey((Person.personIdCounter)++);
 		setAge(0);
 		setMother(mother);
 		setHousehold(mother.getHousehold());
@@ -415,7 +414,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void marry(Person partner) {
 		
 		this.partner = partner;
-		setPartnerId(partner.getId().getId());
+		setPartnerId(partner.getKey().getId());
 
 		if (gender.equals(Gender.Female)) {			//TODO: Female partner should always be called before male partner, given the ordering of the collection of females and males supplied to the matching() method in PersonsModel#marriageMatching().  But do we want to add a check?
 
@@ -483,12 +482,12 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	// ---------------------------------------------------------------------
 
 	
-	public PanelEntityKey getId() {
-		return id;
+	public PanelEntityKey getKey() {
+		return key;
 	}
 
-	public void setId(PanelEntityKey id) {
-		this.id = id;
+	public void setKey(PanelEntityKey key) {
+		this.key = key;
 	}
 
 	public int getAge() {
@@ -671,7 +670,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	}
 
 	public void setMother(Person mother) {
-		this.setMotherId(mother.getId().getId());
+		this.setMotherId(mother.getKey().getId());
 		this.mother = mother;
 	}
 
@@ -681,7 +680,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 
 	public void setPartner(Person partner) {
 		if(partner != null) {
-			this.setPartnerId(partner.getId().getId());
+			this.setPartnerId(partner.getKey().getId());
 		}
 		else {
 			partnerId = null;
@@ -696,14 +695,14 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void setHousehold(Household household) {
 		this.household = household;
 		household.addPerson(this);
-		this.householdId = household.getId().getId();
+		this.householdId = household.getKey().getId();
 	}
 
 	public void resetHousehold(Household household) {
 		this.household.removePerson(this);
 		this.household = household;
 		household.addPerson(this);
-		this.householdId = household.getId().getId();
+		this.householdId = household.getKey().getId();
 	}
 
 	public Person getPotentialPartner() {

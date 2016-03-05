@@ -5,7 +5,6 @@ import it.unito.jas2.demo07.data.filters.ActiveMultiFilter;
 import it.unito.jas2.demo07.data.filters.FemaleToCoupleFilter;
 import it.unito.jas2.demo07.data.filters.FemaleToDivorce;
 import it.unito.jas2.demo07.data.filters.MaleToCoupleFilter;
-import it.unito.jas2.demo07.experiment.PersonsCollector;
 import it.unito.jas2.demo07.model.enums.Education;
 import it.unito.jas2.demo07.model.enums.Gender;
 import it.unito.jas2.demo07.model.enums.WorkState;
@@ -437,7 +436,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public Person getPerson(Long id) {
 		
 		for (Person person : persons) {
-			if ((person.getId() != null) && (person.getId().getId().equals(id)))
+			if ((person.getKey() != null) && (person.getKey().getId().equals(id)))
 				return person;
 		}
 		throw new IllegalArgumentException("Person with id " + id + " is not present!");		
@@ -446,7 +445,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public Household getHousehold(Long id) {
 		
 		for (Household household : households) {
-			if  (household.getId() != null && household.getId().getId().equals(id) )
+			if  (household.getKey() != null && household.getKey().getId().equals(id) )
 				return household;
 		}
 		
