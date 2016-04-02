@@ -2,7 +2,7 @@ package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.engine.AbstractSimulationObserverManager;
 import microsim.engine.SimulationCollectorManager;
 import microsim.engine.SimulationManager;
@@ -17,10 +17,10 @@ import microsim.statistics.functions.MeanArrayFunction;
 
 public class PersonsObserver extends AbstractSimulationObserverManager implements EventListener{
 
-	@ModelParameter(description="Toggle to turn off Observer for increased execution speed")
+	@GUIparameter(description="Toggle to turn off Observer for increased execution speed")
 	private Boolean observerOn = true; 
 
-	@ModelParameter
+	@GUIparameter
 	private Integer displayFrequency = 1;
 	
 	private CrossSection.Integer ageCS;

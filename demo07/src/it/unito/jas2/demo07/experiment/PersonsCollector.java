@@ -1,7 +1,7 @@
 package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.PersonsModel;
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.data.DataExport;
 import microsim.engine.AbstractSimulationCollectorManager;
 import microsim.engine.SimulationManager;
@@ -15,16 +15,16 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 
 	private static Logger log = Logger.getLogger(PersonsCollector.class);
 	
-	@ModelParameter(description="Toggle to persist data to database")
+	@GUIparameter(description="Toggle to persist data to database")
 	private Boolean exportToDatabase = false;
 	
-	@ModelParameter(description="Toggle to export data to CSV files")
+	@GUIparameter(description="Toggle to export data to CSV files")
 	private Boolean exportToCSV = true;
 	
-	@ModelParameter(description="number of timesteps to wait before persisting database")
+	@GUIparameter(description="number of timesteps to wait before persisting database")
 	private Integer databaseDumpStartsAfterTimestep = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 
-	@ModelParameter(description="number of timesteps between database dumps")
+	@GUIparameter(description="number of timesteps between database dumps")
 	private Integer numTimestepsBetweenDatabaseDumps = 1;
 	
 	final PersonsModel model = (PersonsModel) getManager();
