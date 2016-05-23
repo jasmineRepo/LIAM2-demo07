@@ -2,7 +2,7 @@ package it.unito.jas2.demo07.experiment;
 
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.engine.AbstractSimulationObserverManager;
 import microsim.engine.SimulationCollectorManager;
 import microsim.engine.SimulationManager;
@@ -17,10 +17,10 @@ import microsim.statistics.functions.MeanArrayFunction;
 
 public class PersonsObserver extends AbstractSimulationObserverManager implements EventListener{
 
-	@ModelParameter(description="Toggle to turn off Observer for increased execution speed")
+	@GUIparameter(description="Toggle to turn off Observer for increased execution speed")
 	private Boolean observerOn = true; 
 
-	@ModelParameter
+	@GUIparameter
 	private Integer displayFrequency = 1;
 	
 	private CrossSection.Integer ageCS;
@@ -92,22 +92,22 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 			midEducationCS = new CrossSection.Integer(model.getPersons(), Person.class, "getMidEducation", true);
 			highEducationCS = new CrossSection.Integer(model.getPersons(), Person.class, "getHighEducation", true);	
 				
-		    agePlotter = new TimeSeriesSimulationPlotter("Age", "age");
+		    agePlotter = new TimeSeriesSimulationPlotter("Age", "Age (Years)");
 		    agePlotter.addSeries("avg", new MeanArrayFunction(ageCS));
-		    GuiUtils.addWindow(agePlotter, 250, 60, 500, 500);	
+		    GuiUtils.addWindow(agePlotter, 0, 110, 500, 500);	
 		    
-		    workPlotter = new TimeSeriesSimulationPlotter("Work status", "");
+		    workPlotter = new TimeSeriesSimulationPlotter("Work status", "Proportion");
 		    workPlotter.addSeries("employed", new MeanArrayFunction(employmentCS));
 		    workPlotter.addSeries("non-employed", new MeanArrayFunction(nonEmploymentCS));
 		    workPlotter.addSeries("retired", new MeanArrayFunction(retiredCS));
 		    workPlotter.addSeries("students", new MeanArrayFunction(inEducationCS));
-		    GuiUtils.addWindow(workPlotter, 750, 60, 500, 500);	
+		    GuiUtils.addWindow(workPlotter, 500, 110, 500, 500);	
 		    
-		    eduPlotter = new TimeSeriesSimulationPlotter("Education level", "");
+		    eduPlotter = new TimeSeriesSimulationPlotter("Education level", "Proportion");
 		    eduPlotter.addSeries("low", new MeanArrayFunction(lowEducationCS));
 		    eduPlotter.addSeries("mid", new MeanArrayFunction(midEducationCS));
 		    eduPlotter.addSeries("high", new MeanArrayFunction(highEducationCS));
-		    GuiUtils.addWindow(eduPlotter, 1250, 60, 500, 500);
+		    GuiUtils.addWindow(eduPlotter, 1000, 110, 500, 500);
 		}
 	}
 	

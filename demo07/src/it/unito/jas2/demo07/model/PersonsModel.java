@@ -10,7 +10,7 @@ import it.unito.jas2.demo07.model.enums.Gender;
 import it.unito.jas2.demo07.model.enums.WorkState;
 import microsim.alignment.probability.AlignmentProbabilityClosure;
 import microsim.alignment.probability.SBDAlignment;
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.collection.Aggregate;
 import microsim.collection.AverageClosure;
 import microsim.data.MultiKeyCoefficientMap;
@@ -39,16 +39,16 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 
 	private static Logger log = Logger.getLogger(PersonsModel.class);
 	
-	@ModelParameter(description="Simulation first year (valid range 2002-2060)")
+	@GUIparameter(description="Simulation first year (valid range 2002-2060)")
 	private Integer startYear = 2002;
 
-	@ModelParameter(description="Simulation ends at year [valid range 2002-2060]")
+	@GUIparameter(description="Simulation ends at year [valid range 2002-2060]")
 	private Integer endYear = 2060;
 	
-	@ModelParameter(description="Retirement age for women")
+	@GUIparameter(description="Retirement age for women")
 	private Integer wemra = 61;
 	
-	@ModelParameter(description="Toggle to turn off verbose information on time to complete each method")
+	@GUIparameter(description="Toggle to turn off verbose information on time to complete each method")
 	private Boolean printElapsedTime = false; 
 
 	private List<Person> persons;
