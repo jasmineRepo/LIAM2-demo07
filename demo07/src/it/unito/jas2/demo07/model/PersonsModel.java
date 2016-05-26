@@ -436,7 +436,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public Person getPerson(Long id) {
 		
 		for (Person person : persons) {
-			if ((person.getKey() != null) && (person.getKey().getId().equals(id)))
+			if ((person.getKey() != null) && (person.getKey().getId() == id))
 				return person;
 		}
 		throw new IllegalArgumentException("Person with id " + id + " is not present!");		
@@ -445,7 +445,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	public Household getHousehold(Long id) {
 		
 		for (Household household : households) {
-			if  (household.getKey() != null && household.getKey().getId().equals(id) )
+			if  (household.getKey() != null && household.getKey().getId() == id )
 				return household;
 		}
 		

@@ -22,10 +22,10 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	private Boolean exportToCSV = true;
 	
 	@GUIparameter(description="number of timesteps to wait before persisting database")
-	private Integer databaseDumpStartsAfterTimestep = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
+	private Integer recordAfterTimestep = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 
 	@GUIparameter(description="number of timesteps between database dumps")
-	private Integer numTimestepsBetweenDatabaseDumps = 1;
+	private Integer timestepsBetweenRecordings = 1;
 	
 	final PersonsModel model = (PersonsModel) getManager();
 	
@@ -70,7 +70,7 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	public void buildSchedule() {	
 			
 		//Schedule periodic dumps of data to database and/or .csv files during the simulation
-	    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + databaseDumpStartsAfterTimestep, Order.AFTER_ALL.getOrdering()-1, numTimestepsBetweenDatabaseDumps);
+	    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + recordAfterTimestep, Order.AFTER_ALL.getOrdering()-1, timestepsBetweenRecordings);
 		    
 	}
 
@@ -79,22 +79,20 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	// getters and setters
 	// ---------------------------------------------------------------------
 
-	public Integer getDatabaseDumpStartsAfterTimestep() {
-		return databaseDumpStartsAfterTimestep;
+	public Integer getRecordAfterTimestep() {
+		return recordAfterTimestep;
 	}
 
-	public void setDatabaseDumpStartsAfterTimestep(
-			Integer databaseDumpStartsAfterTimestep) {
-		this.databaseDumpStartsAfterTimestep = databaseDumpStartsAfterTimestep;
+	public void setRecordAfterTimestep(Integer recordAfterTimestep) {
+		this.recordAfterTimestep = recordAfterTimestep;
 	}
 
-	public Integer getNumTimestepsBetweenDatabaseDumps() {
-		return numTimestepsBetweenDatabaseDumps;
+	public Integer getTimestepsBetweenRecordings() {
+		return timestepsBetweenRecordings;
 	}
 
-	public void setNumTimestepsBetweenDatabaseDumps(
-			Integer numTimestepsBetweenDatabaseDumps) {
-		this.numTimestepsBetweenDatabaseDumps = numTimestepsBetweenDatabaseDumps;
+	public void setTimestepsBetweenRecordings(Integer timestepsBetweenRecordings) {
+		this.timestepsBetweenRecordings = timestepsBetweenRecordings;
 	}
 
 	public Boolean getExportToDatabase() {
