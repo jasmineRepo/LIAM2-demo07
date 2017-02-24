@@ -45,13 +45,13 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.github.jasmineRepo</groupId>
-				<artifactId>JAS-mine-gui</artifactId>
-				<version>3.1.8</version>
+				<artifactId>JAS-mine-core</artifactId>
+				<version>3.1.9</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.jasmineRepo</groupId>
-				<artifactId>JAS-mine-core</artifactId>
-				<version>3.1.8</version>
+				<artifactId>JAS-mine-gui</artifactId>
+				<version>3.1.9.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
