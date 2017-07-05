@@ -19,7 +19,7 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	private Boolean exportToDatabase = false;
 	
 	@GUIparameter(description="Toggle to export data to CSV files")
-	private Boolean exportToCSV = true;
+	private Boolean exportToCSV = false;
 	
 	@GUIparameter(description="number of timesteps to wait before persisting database")
 	private Integer recordAfterTimestep = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	

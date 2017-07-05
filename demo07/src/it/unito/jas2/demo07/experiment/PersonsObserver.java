@@ -1,7 +1,5 @@
 package it.unito.jas2.demo07.experiment;
 
-import it.unito.jas2.demo07.algorithms.ScatterplotSimulationPlotter;
-import it.unito.jas2.demo07.algorithms.TimeSeriesSimulationPlotter;
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
 import microsim.annotation.GUIparameter;
@@ -13,8 +11,8 @@ import microsim.event.EventGroup;
 import microsim.event.EventListener;
 import microsim.event.Order;
 import microsim.gui.GuiUtils;
-//import microsim.gui.plot.ScatterplotSimulationPlotter;
-//import microsim.gui.plot.TimeSeriesSimulationPlotter;
+import microsim.gui.plot.ScatterplotSimulationPlotter;
+import microsim.gui.plot.TimeSeriesSimulationPlotter;
 import microsim.statistics.CrossSection;
 import microsim.statistics.IIntSource;
 import microsim.statistics.functions.MeanArrayFunction;
