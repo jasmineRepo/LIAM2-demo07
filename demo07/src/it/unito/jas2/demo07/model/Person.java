@@ -11,6 +11,7 @@ import microsim.data.db.PanelEntityKey;
 import microsim.engine.SimulationEngine;
 import microsim.event.EventListener;
 import microsim.statistics.IDoubleSource;
+import microsim.statistics.IIntSource;
 import microsim.statistics.IObjectSource;
 import microsim.statistics.regression.RegressionUtils;
 
@@ -24,7 +25,7 @@ import javax.persistence.Transient;
 import org.jfree.util.Log;
 
 @Entity
-public class Person implements Comparable<Person>, EventListener, IDoubleSource, IObjectSource
+public class Person implements Comparable<Person>, EventListener, IDoubleSource, IObjectSource, IIntSource
 {
 	@Transient
 	public static long personIdCounter = 100000;
@@ -196,6 +197,32 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		}
 	}
 	
+	
+	// ---------------------------------------------------------------------
+	// NEW: implements IIntSource for use with Scatterplot
+	// ---------------------------------------------------------------------	
+	
+	public enum ScatterplotVariables {
+		
+		civilStateValue,
+		workStateValue,
+	}
+	
+	public int getIntValue(Enum<?> variable) {
+		
+		switch ((ScatterplotVariables) variable) {
+		
+		case civilStateValue:
+			return civilState.ordinal();
+			
+		case workStateValue:
+			return workState.ordinal();
+
+		default:
+			throw new IllegalArgumentException("Unsupported variable " + variable.name() + " in Person#getIntValue");
+		}
+	
+	}
 	
 	// ---------------------------------------------------------------------
 	// implements IDoubleSource for use with Regression classes

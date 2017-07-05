@@ -1,5 +1,7 @@
 package it.unito.jas2.demo07.experiment;
 
+import it.unito.jas2.demo07.algorithms.ScatterplotSimulationPlotter;
+import it.unito.jas2.demo07.algorithms.TimeSeriesSimulationPlotter;
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
 import microsim.annotation.GUIparameter;
@@ -11,9 +13,13 @@ import microsim.event.EventGroup;
 import microsim.event.EventListener;
 import microsim.event.Order;
 import microsim.gui.GuiUtils;
-import microsim.gui.plot.TimeSeriesSimulationPlotter;
+//import microsim.gui.plot.ScatterplotSimulationPlotter;
+//import microsim.gui.plot.TimeSeriesSimulationPlotter;
 import microsim.statistics.CrossSection;
+import microsim.statistics.IIntSource;
 import microsim.statistics.functions.MeanArrayFunction;
+import microsim.statistics.functions.MultiTraceFunction;
+import microsim.statistics.functions.SumArrayFunction;
 
 public class PersonsObserver extends AbstractSimulationObserverManager implements EventListener{
 
@@ -22,6 +28,9 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 
 	@GUIparameter
 	private Integer displayFrequency = 1;
+	
+	@GUIparameter(description="Maximum number of persons to display in scatter plot")
+	private Integer maxPersonsInScatterplot = 1000;
 	
 	private CrossSection.Integer ageCS;
 	private CrossSection.Integer nonEmploymentCS;
@@ -35,6 +44,9 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 	private TimeSeriesSimulationPlotter agePlotter;
 	private TimeSeriesSimulationPlotter workPlotter;
 	private TimeSeriesSimulationPlotter eduPlotter;
+	
+	private ScatterplotSimulationPlotter scatterPlotter;
+	private ScatterplotSimulationPlotter scatterPlotter2;
 	
 	public Integer getDisplayFrequency() {
 		return displayFrequency;
@@ -61,16 +73,16 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 	@Override
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {
-		case Update:
-			ageCS.updateSource();
-			nonEmploymentCS.updateSource();
-			employmentCS.updateSource();
-			retiredCS.updateSource();
-			inEducationCS.updateSource();
-			lowEducationCS.updateSource();
-			midEducationCS.updateSource();
-			highEducationCS.updateSource();
-			break;
+//		case Update:
+//			ageCS.updateSource();
+//			nonEmploymentCS.updateSource();
+//			employmentCS.updateSource();
+//			retiredCS.updateSource();
+//			inEducationCS.updateSource();
+//			lowEducationCS.updateSource();
+//			midEducationCS.updateSource();
+//			highEducationCS.updateSource();
+//			break;
 			
 		}
 	}
@@ -101,6 +113,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    workPlotter.addSeries("non-employed", new MeanArrayFunction(nonEmploymentCS));
 		    workPlotter.addSeries("retired", new MeanArrayFunction(retiredCS));
 		    workPlotter.addSeries("students", new MeanArrayFunction(inEducationCS));
+		    workPlotter.setMaxSamples(10);
 		    GuiUtils.addWindow(workPlotter, 500, 110, 500, 500);	
 		    
 		    eduPlotter = new TimeSeriesSimulationPlotter("Education level", "Proportion");
@@ -108,6 +121,24 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    eduPlotter.addSeries("mid", new MeanArrayFunction(midEducationCS));
 		    eduPlotter.addSeries("high", new MeanArrayFunction(highEducationCS));
 		    GuiUtils.addWindow(eduPlotter, 1000, 110, 500, 500);
+		    
+		    scatterPlotter = new ScatterplotSimulationPlotter("Scatter plot demo", "education (proportion)", "work status (sum)");
+		    scatterPlotter.addSeries("lowEd-nonEmploy", new MeanArrayFunction(lowEducationCS), new SumArrayFunction.Integer(nonEmploymentCS));
+		    scatterPlotter.addSeries("highEd-employ", new MeanArrayFunction(highEducationCS), new SumArrayFunction.Integer(employmentCS));
+		    scatterPlotter.setMaxSamples(10);
+		    GuiUtils.addWindow(scatterPlotter, 100, 150, 400, 400);
+		    
+		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false);
+		    scatterPlotter2.setMaxSamples(1);		//This sets the maximum number of time-steps shown in the scatterplot to 1, i.e. only the most recent data is shown in the scatterplot.  If you want the 'n' most-recent time-steps shown, set max samples to n.
+		    int count = 0;		//Counter to limit the number of people included in the chart to prevent over-crowding.
+		    for(Person person : model.getPersons()){
+				if(count >= maxPersonsInScatterplot) break;
+//				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//Labelled version when there are only a few persons on the chart.
+				scatterPlotter2.addSeries("", (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//Unlabelled version when many persons added to chart.
+				count++;
+			}
+		    GuiUtils.addWindow(scatterPlotter2, 500, 150, 400, 400);
+		    
 		}
 	}
 	
@@ -120,6 +151,8 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(agePlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(workPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(eduPlotter, CommonEventType.Update);
+		    observerSchedule.addEvent(scatterPlotter, CommonEventType.Update);
+		    observerSchedule.addEvent(scatterPlotter2, CommonEventType.Update);
 		    getEngine().getEventList().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 	
 		}							
@@ -131,6 +164,14 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 
 	public void setObserverOn(Boolean observerOn) {
 		this.observerOn = observerOn;
+	}
+
+	public Integer getMaxPersonsInScatterplot() {
+		return maxPersonsInScatterplot;
+	}
+
+	public void setMaxPersonsInScatterplot(Integer maxPersonsInScatterplot) {
+		this.maxPersonsInScatterplot = maxPersonsInScatterplot;
 	}
 
 }
