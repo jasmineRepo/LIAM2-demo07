@@ -30,7 +30,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 	private Integer displayFrequency = 1;
 	
 	@GUIparameter(description="Maximum number of persons to display in scatter plot")
-	private Integer maxPersonsInScatterplot = 1000;
+	private Integer maxPersonsInScatterplot = 500;
 	
 	private CrossSection.Integer ageCS;
 	private CrossSection.Integer nonEmploymentCS;
@@ -129,12 +129,11 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    GuiUtils.addWindow(scatterPlotter, 100, 150, 400, 400);
 		    
 		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false);
-		    scatterPlotter2.setMaxSamples(1);		//This sets the maximum number of time-steps shown in the scatterplot to 1, i.e. only the most recent data is shown in the scatterplot.  If you want the 'n' most-recent time-steps shown, set max samples to n.
+		    scatterPlotter2.setMaxSamples(2);		//This sets the maximum number of time-steps shown in the scatterplot to 1, i.e. only the most recent data is shown in the scatterplot.  If you want the 'n' most-recent time-steps shown, set max samples to n.
 		    int count = 0;		//Counter to limit the number of people included in the chart to prevent over-crowding.
 		    for(Person person : model.getPersons()){
 				if(count >= maxPersonsInScatterplot) break;
-//				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//Labelled version when there are only a few persons on the chart.
-				scatterPlotter2.addSeries("", (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//Unlabelled version when many persons added to chart.
+				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));
 				count++;
 			}
 		    GuiUtils.addWindow(scatterPlotter2, 500, 150, 400, 400);

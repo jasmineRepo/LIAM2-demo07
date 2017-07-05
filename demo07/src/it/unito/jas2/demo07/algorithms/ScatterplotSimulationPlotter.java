@@ -27,6 +27,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -72,14 +73,12 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 	private XYSeriesCollection dataset;
 	
 	private int maxSamples = 0;
-	
-	private int sampleCount = 0;
 
 	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis) {		//Includes legend by default
 		this(title, xaxis, yaxis, true);
 	}
 	
-	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis, boolean includeLegend) {
+	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis, boolean includeLegend) {		//Can specify whether to include legend
 		super();
 		this.setResizable(true);
 		this.setTitle(title);
@@ -130,7 +129,6 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 	public void onEvent(Enum<?> type) {
 		if (type instanceof CommonEventType && type.equals(CommonEventType.Update)) {
 			double x = 0.0, y = 0.0;
-			sampleCount++;
 			for (int i = 0; i < sources.size(); i++) {
 				Source source_X = sources.get(i).getFirst();
 				Source source_Y = sources.get(i).getSecond();
@@ -138,17 +136,11 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 				x = source_X.getDouble();
 				y = source_Y.getDouble();
 				series.add(x, y);
-				if (maxSamples > 0 && sampleCount > maxSamples ) {	//This removes older points as time goes one 
-					series.remove(0);
+				if (maxSamples > 0 && series.getItemCount() > maxSamples ) {
+					XYDataItem xy = series.remove(0);
+					System.out.println(series.getItemCount() + ", (" + xy.getXValue() + ", " + xy.getYValue() + ")");					
 				}
 			}
-//			if (maxSamples > 0 && sampleCount > maxSamples ) {	//This removes older points as time goes one
-//				for (Object o: dataset.getSeries()) {
-//					XYSeries series = (XYSeries)o;
-//					series.remove(0);
-//				}
-//				sampleCount--;
-//			}
 		}
 	}
 
@@ -638,7 +630,8 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 	
 	/**
 	 * Max samples parameters allow to define a maximum number of points.
-	 * When set the plotting window shifts automatically.
+	 * When set the oldest data points are removed as time moves forward to maintain the number of 
+	 * samples in the chart.
 	 */
 	public int getMaxSamples() {
 		return maxSamples;

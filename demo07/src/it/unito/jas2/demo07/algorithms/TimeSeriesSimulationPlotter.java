@@ -74,9 +74,11 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 	
 	private int maxSamples = 0;
 	
-	private int sampleCount = 0;
+	public TimeSeriesSimulationPlotter(String title, String yaxis) {			//Include legend by default
+		this(title, yaxis, true);
+	}
 	
-	public TimeSeriesSimulationPlotter(String title, String yaxis) {
+	public TimeSeriesSimulationPlotter(String title, String yaxis, boolean includeLegend) {		//Can specify whether to include legend
 		super();
 		this.setResizable(true);
 		this.setTitle(title);
@@ -91,7 +93,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
                 yaxis,                      // y axis label
                 dataset,                  // data
                 PlotOrientation.VERTICAL,
-                true,                     // include legend
+                includeLegend,                     // include legend
                 true,                     // tooltips
                 false                     // urls
             );
@@ -132,13 +134,12 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 	public void onEvent(Enum<?> type) {
 		if (type instanceof CommonEventType && type.equals(CommonEventType.Update)) {
 			double d = 0.0;
-			sampleCount++;
 			for (int i = 0; i < sources.size(); i++) {
 				Source source = sources.get(i);
 				XYSeries series = dataset.getSeries(i);
 				d = source.getDouble();
 				series.add(SimulationEngine.getInstance().getTime(), d);
-				if (maxSamples > 0 && sampleCount > maxSamples ) { 
+				if (maxSamples > 0 && series.getItemCount() > maxSamples ) { 
 					series.remove(0);
 				}
 			}
