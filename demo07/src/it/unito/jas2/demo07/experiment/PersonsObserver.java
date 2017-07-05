@@ -108,12 +108,11 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    agePlotter.addSeries("avg", new MeanArrayFunction(ageCS));
 		    GuiUtils.addWindow(agePlotter, 0, 110, 500, 500);	
 		    
-		    workPlotter = new TimeSeriesSimulationPlotter("Work status", "Proportion");
+		    workPlotter = new TimeSeriesSimulationPlotter("Work status", "Proportion", true, 10);	//Show legend, show only last 10 time-steps
 		    workPlotter.addSeries("employed", new MeanArrayFunction(employmentCS));
 		    workPlotter.addSeries("non-employed", new MeanArrayFunction(nonEmploymentCS));
 		    workPlotter.addSeries("retired", new MeanArrayFunction(retiredCS));
 		    workPlotter.addSeries("students", new MeanArrayFunction(inEducationCS));
-		    workPlotter.setMaxSamples(10);
 		    GuiUtils.addWindow(workPlotter, 500, 110, 500, 500);	
 		    
 		    eduPlotter = new TimeSeriesSimulationPlotter("Education level", "Proportion");
@@ -123,13 +122,13 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    GuiUtils.addWindow(eduPlotter, 1000, 110, 500, 500);
 		    
 		    scatterPlotter = new ScatterplotSimulationPlotter("Scatter plot demo", "education (proportion)", "work status (sum)");
+		    scatterPlotter.setMaxSamples(10);		//Show only the previous 10 time-steps of data.
 		    scatterPlotter.addSeries("lowEd-nonEmploy", new MeanArrayFunction(lowEducationCS), new SumArrayFunction.Integer(nonEmploymentCS));
 		    scatterPlotter.addSeries("highEd-employ", new MeanArrayFunction(highEducationCS), new SumArrayFunction.Integer(employmentCS));
-		    scatterPlotter.setMaxSamples(10);
+		    
 		    GuiUtils.addWindow(scatterPlotter, 100, 150, 400, 400);
 		    
-		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false);
-		    scatterPlotter2.setMaxSamples(2);		//This sets the maximum number of time-steps shown in the scatterplot to 1, i.e. only the most recent data is shown in the scatterplot.  If you want the 'n' most-recent time-steps shown, set max samples to n.
+		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false, 1);		//Create scatterplot with no legend ('false' in the argument) and only data from the last '1' time-steps, i.e. only the most recent data.  Set the last argument to 0 to accumulate all historic data.
 		    int count = 0;		//Counter to limit the number of people included in the chart to prevent over-crowding.
 		    for(Person person : model.getPersons()){
 				if(count >= maxPersonsInScatterplot) break;

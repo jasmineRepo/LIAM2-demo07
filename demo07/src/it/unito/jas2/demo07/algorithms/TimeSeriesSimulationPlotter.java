@@ -75,13 +75,14 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 	private int maxSamples = 0;
 	
 	public TimeSeriesSimulationPlotter(String title, String yaxis) {			//Include legend by default
-		this(title, yaxis, true);
+		this(title, yaxis, true, 0);
 	}
 	
-	public TimeSeriesSimulationPlotter(String title, String yaxis, boolean includeLegend) {		//Can specify whether to include legend
+	public TimeSeriesSimulationPlotter(String title, String yaxis, boolean includeLegend, int maxSamples) {		//Can specify whether to include legend
 		super();
 		this.setResizable(true);
 		this.setTitle(title);
+		this.maxSamples = maxSamples;
 		
 		sources = new ArrayList<Source>();
 		
@@ -101,10 +102,10 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.white);
         
-        String fontName = chart.getLegend().getItemFont().getFontName();
-        int style = chart.getLegend().getItemFont().getStyle();
-        int size = chart.getLegend().getItemFont().getSize();
-        chart.getLegend().setItemFont(new Font(fontName, style, (int)MicrosimShell.scale*size));
+//        String fontName = chart.getLegend().getItemFont().getFontName();
+//        int style = chart.getLegend().getItemFont().getStyle();
+//        int size = chart.getLegend().getItemFont().getSize();
+//        chart.getLegend().setItemFont(new Font(fontName, style, (int)MicrosimShell.scale*size));
         
         // get a reference to the plot for further customisation...
         final XYPlot plot = chart.getXYPlot();
@@ -139,9 +140,9 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 				XYSeries series = dataset.getSeries(i);
 				d = source.getDouble();
 				series.add(SimulationEngine.getInstance().getTime(), d);
-				if (maxSamples > 0 && series.getItemCount() > maxSamples ) { 
-					series.remove(0);
-				}
+//				if (maxSamples > 0 && series.getItemCount() > maxSamples ) { 
+//					series.remove(0);
+//				}
 			}
 		}
 	}
@@ -266,6 +267,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new DSource(legend, plottableObject, IDoubleSource.Variables.Default));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -285,6 +287,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new DSource(legend, plottableObject, variableID));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
@@ -301,6 +304,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new FSource(legend, plottableObject, IFloatSource.Variables.Default));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
@@ -320,6 +324,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new FSource(legend, plottableObject, variableID));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -335,6 +340,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new LSource(legend, plottableObject, ILongSource.Variables.Default));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -353,6 +359,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new LSource(legend, plottableObject, variableID));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -368,6 +375,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new ISource(legend, plottableObject, IIntSource.Variables.Default));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -386,6 +394,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 		sources.add(new ISource(legend, plottableObject, variableID));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -426,6 +435,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 
 		sources.add(source);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 		//plot.addLegend(sources.size() - 1, legend);
 	}

@@ -98,7 +98,6 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			break;
 		case UpdateYear:
 			year++;
-			System.out.println("Year is now " + year);
 			break;
 		}
 	}

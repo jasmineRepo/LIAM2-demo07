@@ -27,7 +27,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -74,14 +73,44 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 	
 	private int maxSamples = 0;
 
-	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis) {		//Includes legend by default
-		this(title, xaxis, yaxis, true);
-	}
 	
-	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis, boolean includeLegend) {		//Can specify whether to include legend
+	/**
+	 * Constructor for scatterplot chart objects with chart legend displayed by default and
+	 * 	all data samples shown, accumulating as time moves forward.  If it is desired to turn
+	 *  the legend off, or set a limit to the number of previous time-steps of data displayed
+	 *  in the chart, use the constructor 
+	 *  ScatterplotSimulationPlotter(String title, String xaxis, String yaxis, boolean includeLegend, int maxSamples)
+	 *  
+	 * @param title - title of the chart
+	 * @param xaxis - name of the x-axis
+	 * @param yaxis - name of the y-axis
+	 * 
+	 */
+	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis) {		//Includes legend by default and will accumulate data samples by default (if wanting only the most recent data points, use the other constructor)
+		this(title, xaxis, yaxis, true, 0);
+	}
+
+	/**
+	 * Constructor for scatterplot chart objects, featuring a toggle to hide the chart legend
+	 * 	and to set the number of previous time-steps of data to display in the chart.
+	 * 
+	 * @param title - title of the chart
+	 * @param xaxis - name of the x-axis
+	 * @param yaxis - name of the y-axis
+	 * @param includeLegend - toggles whether to include the legend.  If displaying a 
+	 * 	very large number of different series in the chart, it may be useful to turn 
+	 * 	the legend off as it will occupy a lot of space in the GUI.
+	 * @param maxSamples - the number of 'snapshots' of data displayed in the chart.  
+	 * 	For example, if the chart is updated at regular time-steps, only data from the 
+	 * 	last 'maxSamples' time-steps will be displayed in the chart.  If the user wishes 
+	 * 	accucumulate all data points, for example to display all available data from all 
+	 * 	previous time-steps, set this to 0.
+	 */
+	public ScatterplotSimulationPlotter(String title, String xaxis, String yaxis, boolean includeLegend, int maxSamples) {		//Can specify whether to include legend
 		super();
 		this.setResizable(true);
 		this.setTitle(title);
+		this.maxSamples = maxSamples;
 		
 		sources = new ArrayList<Pair<Source, Source>>();
 		
@@ -136,10 +165,10 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 				x = source_X.getDouble();
 				y = source_Y.getDouble();
 				series.add(x, y);
-				if (maxSamples > 0 && series.getItemCount() > maxSamples ) {
-					XYDataItem xy = series.remove(0);
-					System.out.println(series.getItemCount() + ", (" + xy.getXValue() + ", " + xy.getYValue() + ")");					
-				}
+//				if (maxSamples > 0 && series.getItemCount() > maxSamples ) {		//Should no longer be necessary if using XYSeries.setMaximumItemCount()
+//					XYDataItem xy = series.remove(0);
+//					System.out.println(series.getItemCount() + ", (" + xy.getXValue() + ", " + xy.getYValue() + ")");					
+//				}
 			}
 		}
 	}
@@ -269,6 +298,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -295,6 +325,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
@@ -319,6 +350,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
@@ -345,6 +377,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -368,6 +401,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -394,6 +428,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));		
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -417,6 +452,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -446,6 +482,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -520,6 +557,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 //		sources.add(source);
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 		//plot.addLegend(sources.size() - 1, legend);
 	}
@@ -547,6 +585,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -574,6 +613,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
@@ -596,6 +636,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);
 	}
 
@@ -623,6 +664,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 		sources.add(new Pair<Source, Source>(sourceX, sourceY));
 		//plot.addLegend(sources.size() - 1, legend);
 		XYSeries series = new XYSeries(legend);
+		if(maxSamples > 0) series.setMaximumItemCount(maxSamples);
 		dataset.addSeries(series);		
 	}
 
