@@ -671,9 +671,9 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 
 	
 	/**
-	 * Max samples parameters allow to define a maximum number of points.
-	 * When set the oldest data points are removed as time moves forward to maintain the number of 
-	 * samples in the chart.
+	 * Max samples parameters allow to define a maximum number of time-steps used
+	 * in the scatter plot.  When set, the oldest data points are removed as time 
+	 * moves forward to maintain the number of samples (time-steps) in the chart.
 	 */
 	public int getMaxSamples() {
 		return maxSamples;
@@ -681,7 +681,7 @@ public class ScatterplotSimulationPlotter extends JInternalFrame implements Even
 
 	/**
 	 * Set the max sample parameter.
-	 * @param maxSamples Maximum number of point rendered on x axis.
+	 * @param maxSamples Maximum number of time-steps rendered on x axis.
 	 */
 	public void setMaxSamples(int maxSamples) {
 		this.maxSamples = maxSamples;

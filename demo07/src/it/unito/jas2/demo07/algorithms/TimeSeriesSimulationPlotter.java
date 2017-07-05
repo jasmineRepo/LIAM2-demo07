@@ -44,7 +44,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Description: Java Agent-based Simulation library
  * </p>
  * <p>
- * Copyright (C) 2002-13 Michele Sonnessa
+ * Copyright (C) 2002-17 Michele Sonnessa and Ross Richardson
  * </p>
  * 
  * This library is free software; you can redistribute it and/or modify it under
@@ -442,7 +442,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 	
 	/**
 	 * Max samples parameters allow to define a maximum number of points.
-	 * When set the plotting window shifts automatically.
+	 * When set the plotting window shifts automatically along with time.
 	 */
 	public int getMaxSamples() {
 		return maxSamples;
@@ -450,7 +450,7 @@ public class TimeSeriesSimulationPlotter extends JInternalFrame implements Event
 
 	/**
 	 * Set the max sample parameter.
-	 * @param maxSamples Maximum number of point rendered on x axis.
+	 * @param maxSamples Maximum number of time-steps rendered on x axis.
 	 */
 	public void setMaxSamples(int maxSamples) {
 		this.maxSamples = maxSamples;
