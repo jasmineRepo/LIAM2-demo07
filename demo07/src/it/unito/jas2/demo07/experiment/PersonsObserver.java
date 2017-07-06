@@ -28,7 +28,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 	private Integer displayFrequency = 1;
 	
 	@GUIparameter(description="Maximum number of persons to display in scatter plot")
-	private Integer maxPersonsInScatterplot = 500;
+	private Integer maxPersonsInScatterplot = 100;
 	
 	private CrossSection.Integer ageCS;
 	private CrossSection.Integer nonEmploymentCS;
@@ -118,19 +118,21 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    eduPlotter.addSeries("mid", new MeanArrayFunction(midEducationCS));
 		    eduPlotter.addSeries("high", new MeanArrayFunction(highEducationCS));
 		    GuiUtils.addWindow(eduPlotter, 1000, 110, 500, 500);
-		    
+
+		    //This uses cross section objects and mean array functions to calculate averages on population aggregates and presents them in a scatterplot.
 		    scatterPlotter = new ScatterplotSimulationPlotter("Scatter plot demo", "education (proportion)", "work status (sum)");
 		    scatterPlotter.setMaxSamples(10);		//Show only the previous 10 time-steps of data.
 		    scatterPlotter.addSeries("lowEd-nonEmploy", new MeanArrayFunction(lowEducationCS), new SumArrayFunction.Integer(nonEmploymentCS));
 		    scatterPlotter.addSeries("highEd-employ", new MeanArrayFunction(highEducationCS), new SumArrayFunction.Integer(employmentCS));
-		    
 		    GuiUtils.addWindow(scatterPlotter, 100, 150, 400, 400);
-		    
-		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false, 1);		//Create scatterplot with no legend ('false' in the argument) and only data from the last '1' time-steps, i.e. only the most recent data.  Set the last argument to 0 to accumulate all historic data.
+
+		    //This uses IIntSource interface and Person.getIntValue() method to present (ordinal) enum data of individual persons.  See the ScatterplotVariables and getIntValue() method of the Person class.
+		    scatterPlotter2 = new ScatterplotSimulationPlotter("Scatter plot demo enums", "civil status", "work status", false, 1);		//Create scatterplot with no legend ('false' in the argument) and only data from the most recent update (the last '1' in the argument).  If you want to accumulate all historic data instead of just the last update (time-step), set the last argument to 0 instead of 1, or if you want the most recent 'n' updates (time-steps), set the last argument to 'n'.
 		    int count = 0;		//Counter to limit the number of people included in the chart to prevent over-crowding.
 		    for(Person person : model.getPersons()){
 				if(count >= maxPersonsInScatterplot) break;
-				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));
+//				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//One way to do it.
+				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource)person, Person.ScatterplotVariables.civilStateValue, person, Person.ScatterplotVariables.workStateValue);		//A simpler way to do it.
 				count++;
 			}
 		    GuiUtils.addWindow(scatterPlotter2, 500, 150, 400, 400);

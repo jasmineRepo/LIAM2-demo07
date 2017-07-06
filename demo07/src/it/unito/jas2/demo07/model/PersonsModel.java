@@ -97,6 +97,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			printElapsedTime();		//Comment or Uncomment depending on whether you want more System.out calls (which slow down the simulation, although useful to record the time to execute the methods for benchmarking. 
 			break;
 		case UpdateYear:
+			System.out.println("Year " + year);
 			year++;
 			break;
 		}
