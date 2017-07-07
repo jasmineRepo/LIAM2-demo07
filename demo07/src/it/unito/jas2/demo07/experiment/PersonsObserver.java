@@ -132,7 +132,8 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    for(Person person : model.getPersons()){
 				if(count >= maxPersonsInScatterplot) break;
 //				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.civilStateValue), (IIntSource) new MultiTraceFunction.Integer(person, Person.ScatterplotVariables.workStateValue));		//One way to do it.
-				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource)person, Person.ScatterplotVariables.civilStateValue, person, Person.ScatterplotVariables.workStateValue);		//A simpler way to do it.
+//				scatterPlotter2.addSeries("Person " + person.getKey().getId(), (IIntSource)person, Person.ScatterplotVariables.civilStateValue, person, Person.ScatterplotVariables.workStateValue);		//Another way to do it.
+				scatterPlotter2.addSeries("Person " + person.getKey().getId(), person, "getCivilStateInt", true, person, "getWorkStateInt", true);		//Another way to do it that doesn't require person implementing the IIntSource interface; instead it relies on Java reflection to inspect the person object.  Note that you need a method to map the enums to integers; I've implemented a method that returns the ordinal values.
 				count++;
 			}
 		    GuiUtils.addWindow(scatterPlotter2, 500, 150, 400, 400);

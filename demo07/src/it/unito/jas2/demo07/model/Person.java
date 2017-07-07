@@ -532,10 +532,6 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
-
-	public WorkState getWorkState() {
-		return workState;
-	}
 	
 	public int getEmployed()
 	{
@@ -560,6 +556,10 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 		if (workState.equals(WorkState.Student)) return 1;
 		else return 0;
 	}
+	
+	public WorkState getWorkState() {
+		return workState;
+	}
 
 	public void setWorkState(WorkState workState) {
 		this.workState = workState;
@@ -568,7 +568,7 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public CivilState getCivilState() {
 		return civilState;
 	}
-
+	
 	public void setCivilState(CivilState civilState) {
 		this.civilState = civilState;
 	}
@@ -753,6 +753,14 @@ public class Person implements Comparable<Person>, EventListener, IDoubleSource,
 	public double getPotentialAgeDiff()
 	{
 			return (double)(age - potentialPartner.getAge());
+	}
+	
+	public int getCivilStateInt() {
+		return civilState.ordinal();
+	}
+
+	public int getWorkStateInt() {
+		return workState.ordinal();
 	}
 	
 }
