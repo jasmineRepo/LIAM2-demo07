@@ -1,5 +1,7 @@
 package it.unito.jas2.demo07.experiment;
 
+import org.jfree.data.statistics.HistogramType;
+
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.PersonsModel;
 import microsim.annotation.GUIparameter;
@@ -11,6 +13,7 @@ import microsim.event.EventGroup;
 import microsim.event.EventListener;
 import microsim.event.Order;
 import microsim.gui.GuiUtils;
+import microsim.gui.plot.HistogramSimulationPlotter;
 import microsim.gui.plot.ScatterplotSimulationPlotter;
 import microsim.gui.plot.TimeSeriesSimulationPlotter;
 import microsim.statistics.CrossSection;
@@ -45,6 +48,8 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 	
 	private ScatterplotSimulationPlotter scatterPlotter;
 	private ScatterplotSimulationPlotter scatterPlotter2;
+	
+	private HistogramSimulationPlotter histPlotter;
 	
 	public Integer getDisplayFrequency() {
 		return displayFrequency;
@@ -138,6 +143,13 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 			}
 		    GuiUtils.addWindow(scatterPlotter2, 500, 150, 400, 400);
 		    
+//		    histPlotter = new HistogramSimulationPlotter("Hist plot demo", "years", HistogramType.RELATIVE_FREQUENCY, 10);
+		    histPlotter = new HistogramSimulationPlotter("Hist plot demo", "years", HistogramType.RELATIVE_FREQUENCY, 10, 0., 80., true);
+		    histPlotter.addCollectionSource("age", ageCS);
+		    CrossSection.Integer durCoupleCS = new CrossSection.Integer(model.getPersons(), Person.class, "getDurationInCouple", true);
+		    histPlotter.addCollectionSource("durationInCouple", durCoupleCS);
+		    GuiUtils.addWindow(histPlotter, 900, 150, 400, 400);
+		    
 		}
 	}
 	
@@ -152,6 +164,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(eduPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(scatterPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(scatterPlotter2, CommonEventType.Update);
+		    observerSchedule.addEvent(histPlotter, CommonEventType.Update);
 		    getEngine().getEventList().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 	
 		}							
