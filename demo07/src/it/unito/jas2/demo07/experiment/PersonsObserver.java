@@ -145,9 +145,11 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    
 //		    histPlotter = new HistogramSimulationPlotter("Hist plot demo", "years", HistogramType.RELATIVE_FREQUENCY, 10);
 		    histPlotter = new HistogramSimulationPlotter("Hist plot demo", "years", HistogramType.RELATIVE_FREQUENCY, 10, 0., 80., true);
-		    histPlotter.addCollectionSource("age", ageCS);
+		    
 		    CrossSection.Integer durCoupleCS = new CrossSection.Integer(model.getPersons(), Person.class, "getDurationInCouple", true);
 		    histPlotter.addCollectionSource("durationInCouple", durCoupleCS);
+		    histPlotter.addCollectionSource("age", ageCS);
+
 		    GuiUtils.addWindow(histPlotter, 900, 150, 400, 400);
 		    
 		}
@@ -165,7 +167,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(scatterPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(scatterPlotter2, CommonEventType.Update);
 		    observerSchedule.addEvent(histPlotter, CommonEventType.Update);
-		    getEngine().getEventList().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
+		    getEngine().getEventQueue().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 	
 		}							
 	}

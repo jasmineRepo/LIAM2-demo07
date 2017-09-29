@@ -31,8 +31,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.log4j.Logger;
 
 public class PersonsModel extends AbstractSimulationManager implements EventListener {
@@ -193,10 +193,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		}
 	
 		modelSchedule.addEvent(this, Processes.UpdateYear);
-		getEngine().getEventList().scheduleRepeat(modelSchedule, startYear, 0, 1.);
+		getEngine().getEventQueue().scheduleRepeat(modelSchedule, startYear, 0, 1.);
 		
 		//Schedule model to stop
-		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
+		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
 		
 		year = startYear;
 		elapsedTime = System.currentTimeMillis();

@@ -70,7 +70,7 @@ public class PersonsCollector extends AbstractSimulationCollectorManager impleme
 	public void buildSchedule() {	
 			
 		//Schedule periodic dumps of data to database and/or .csv files during the simulation
-	    getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + recordAfterTimestep, Order.AFTER_ALL.getOrdering()-1, timestepsBetweenRecordings);
+	    getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), model.getStartYear() + recordAfterTimestep, Order.AFTER_ALL.getOrdering()-1, timestepsBetweenRecordings);
 		    
 	}
 
