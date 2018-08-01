@@ -22,8 +22,8 @@ public class ActiveMultiFilter<T extends Person> implements Predicate<T> {
 	}
 
 	@Override
-	public boolean evaluate(T object) {
-		Person agent = (Person) object;
+	public boolean evaluate(T agent) {
+
 		return (agent.atRiskOfWork() && 
 				agent.getGender().equals(gender) && 
 				agent.getAge() >= ageFrom &&

@@ -8,8 +8,8 @@ import org.apache.commons.collections4.Predicate;
 public class FemaleToCoupleFilter<T extends Person> implements Predicate<T> {
 
 	@Override
-	public boolean evaluate(T object) {
-		Person agent = (Person) object;
+	public boolean evaluate(T agent) {
+
 		return (agent.getGender().equals(Gender.Female) && agent.getToCouple());
 	}
 

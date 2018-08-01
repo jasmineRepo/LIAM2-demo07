@@ -18,8 +18,8 @@ public class FemaleToDivorce<T extends Person> implements Predicate<T> {
 	}
 
 	@Override
-	public boolean evaluate(T object) {
-		Person agent = (Person) object;
+	public boolean evaluate(T agent) {
+
 		return (agent.getGender().equals(Gender.Female) &&
 				agent.getCivilState().equals(CivilState.Married) &&
 				agent.getDurationInCouple() > 0 &&
