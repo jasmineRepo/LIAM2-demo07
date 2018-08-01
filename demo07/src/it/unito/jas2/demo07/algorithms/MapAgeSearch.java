@@ -3,11 +3,12 @@ package it.unito.jas2.demo07.algorithms;
 import it.unito.jas2.demo07.model.enums.Gender;			//XXX: This cannot be a candidate for the JAS libraries if it relies on a model specific definition of Gender!
 import microsim.data.MultiKeyCoefficientMap;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 
 public class MapAgeSearch {
 
+	@SuppressWarnings("rawtypes")
 	public static Double getValue(MultiKeyCoefficientMap map, int age, Gender gender, Integer index) {		//For use with Integer indices for the names of the value columns, such as an enum.ORDINAL or just a regular Integer variable
 		for (MapIterator iterator = map.mapIterator(); iterator.hasNext();) {
 			iterator.next();
@@ -23,6 +24,7 @@ public class MapAgeSearch {
 		throw new IllegalArgumentException("Age " + age + " cannot be mapped for gender " + gender);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Double getValue(MultiKeyCoefficientMap map, int age, Gender gender, String stringIndex) {	//For use with String indices for the names of the value columns, such as an an enum.STRING or just a regular String variable 
 		for (MapIterator iterator = map.mapIterator(); iterator.hasNext();) {
 			iterator.next();

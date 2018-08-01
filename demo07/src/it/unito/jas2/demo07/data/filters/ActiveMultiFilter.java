@@ -3,12 +3,12 @@ package it.unito.jas2.demo07.data.filters;
 import it.unito.jas2.demo07.model.Person;
 import it.unito.jas2.demo07.model.enums.Gender;
 
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.Predicate;
 
 // This filter is a multi-filter, 
 // meaning that it is able to refine the filter depending on the arguments
 
-public class ActiveMultiFilter implements Predicate {
+public class ActiveMultiFilter<T extends Person> implements Predicate<T> {
 
 	private int ageFrom;
 	private int ageTo;
@@ -22,7 +22,7 @@ public class ActiveMultiFilter implements Predicate {
 	}
 
 	@Override
-	public boolean evaluate(Object object) {
+	public boolean evaluate(T object) {
 		Person agent = (Person) object;
 		return (agent.atRiskOfWork() && 
 				agent.getGender().equals(gender) && 

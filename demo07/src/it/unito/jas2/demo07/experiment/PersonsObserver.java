@@ -120,7 +120,7 @@ public class PersonsObserver extends AbstractSimulationObserverManager implement
 		    observerSchedule.addEvent(agePlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(workPlotter, CommonEventType.Update);
 		    observerSchedule.addEvent(eduPlotter, CommonEventType.Update);
-		    getEngine().getEventList().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
+		    getEngine().getEventQueue().scheduleRepeat(observerSchedule, model.getStartYear(), Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 	
 		}							
 	}

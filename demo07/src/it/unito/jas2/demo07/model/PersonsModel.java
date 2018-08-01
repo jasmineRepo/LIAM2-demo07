@@ -31,8 +31,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.collections.MapIterator;
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.log4j.Logger;
 
 public class PersonsModel extends AbstractSimulationManager implements EventListener {
@@ -192,10 +192,10 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 		}
 	
 		modelSchedule.addEvent(this, Processes.UpdateYear);
-		getEngine().getEventList().scheduleRepeat(modelSchedule, startYear, 0, 1.);
+		getEngine().getEventQueue().scheduleRepeat(modelSchedule, startYear, 0, 1.);
 		
 		//Schedule model to stop
-		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
+		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
 		
 		year = startYear;
 		elapsedTime = System.currentTimeMillis();
@@ -289,6 +289,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 	
 	//	All-in-one alignment: the closure computes the probability, and then assigns the outcome.
 	
+	@SuppressWarnings("rawtypes")
 	private void divorceAlignment() {
 		
 		// perform alignment on each cell of parameter file 
@@ -304,7 +305,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			//Align
 			new SBDAlignment<Person>().align(
 					getPersons(), 
-					new FemaleToDivorce(ageFrom, ageTo), 
+					new FemaleToDivorce<Person>(ageFrom, ageTo), 
 					new AlignmentProbabilityClosure<Person>() {
 
 						@Override
@@ -324,6 +325,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 //		System.out.println("Divorce aligned.");
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void inWorkAlignment() {
 		MultiKeyCoefficientMap map = Parameters.getpInWork();
 		
@@ -340,7 +342,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 			//Align
 			new SBDAlignment<Person>().align(
 					getPersons(), 
-					new ActiveMultiFilter(ageFrom, ageTo, gender), 
+					new ActiveMultiFilter<Person>(ageFrom, ageTo, gender), 
 					new AlignmentProbabilityClosure<Person>() {
 
 						@Override
@@ -361,21 +363,22 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 //		System.out.println("inWork aligned.");
 	}
 
+	@SuppressWarnings("unchecked")
 	private void marriageMatching() {
 		
 		//Compute age average for difficult match
-		final AverageClosure averageAge = new AverageClosure() {				
+		final AverageClosure<Person> averageAge = new AverageClosure<Person>() {				
 			@Override
-			public void execute(Object input) {
-				add( ((Person) input).getAge() );					
+			public void execute(Person input) {
+				add( input.getAge() );					
 			}
 		};
 		
-		Aggregate.applyToFilter(getPersons(), new FemaleToCoupleFilter(), averageAge);
+		Aggregate.applyToFilter(getPersons(), new FemaleToCoupleFilter<Person>(), averageAge);
 		
 		// Do matching
 		SimpleMatching.getInstance().matching(
-			getPersons(), new FemaleToCoupleFilter(), new Comparator<Person>() {	
+			getPersons(), new FemaleToCoupleFilter<Person>(), new Comparator<Person>() {	
 				@Override
 				public int compare(Person female1, Person female2) {					
 					return (int) Math.signum(Math.abs(female1.getAge() - averageAge.getAverage()) - 
@@ -383,7 +386,7 @@ public class PersonsModel extends AbstractSimulationManager implements EventList
 							);					
 				}			
 			}, 
-			getPersons(), new MaleToCoupleFilter(), new MatchingScoreClosure<Person>() {				
+			getPersons(), new MaleToCoupleFilter<Person>(), new MatchingScoreClosure<Person>() {				
 				@Override
 				public Double getValue(Person female, Person male) {
 					return female.getMarriageScore(male);
